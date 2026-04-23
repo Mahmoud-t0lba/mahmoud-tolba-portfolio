@@ -8,7 +8,7 @@ export const personalInfo = {
     title: 'Senior Flutter Developer',
     email: 'mahmoudt0lba0111@gmail.com',
     phone: '+20 1097107762',
-    location: 'Mansoura, Egypt',
+    location: 'Maadi, Egypt',
     currentRole: 'Senior Flutter Developer at Code7X',
     about: 'Senior Flutter Developer with 5+ years of experience building scalable, production-grade mobile apps across Android and iOS.',
     bio: 'Mahmoud is a Senior Flutter Developer with 5+ years of experience delivering mobile products across transport, social, education, utility, and commerce-focused domains. He specializes in scalable Flutter architecture, state management, API integration, polished product execution, and reliable delivery, while also bringing a React Native background and light iOS/Android native exposure for integration-heavy work.',
@@ -74,6 +74,16 @@ export const techStack: TagData[] = [
         summary: 'Lightweight reactive state layers for modular flows, prototypes, and shared app services.'
     },
     {
+        name: 'GetX',
+        color: '#7C3AED',
+        summary: 'Practical reactive controllers, dependency setup, and streamlined feature delivery when product scope fits.'
+    },
+    {
+        name: 'MVVM',
+        color: '#0891B2',
+        summary: 'Structured presentation logic and feature modules that keep screens maintainable as products scale.'
+    },
+    {
         name: 'Clean Architecture',
         color: '#16A34A',
         summary: 'Feature-first separation between presentation, domain, and data for long-term maintainability.'
@@ -100,6 +110,11 @@ export const techStack: TagData[] = [
         summary: 'Live updates, streaming data, socket-driven UX, and event-based product flows.'
     },
     {
+        name: 'Notifications & Deep Links',
+        color: '#F43F5E',
+        summary: 'Push notifications, local alerts, routing, and re-engagement flows connected to real product journeys.'
+    },
+    {
         name: 'Maps & Location',
         color: '#34A853',
         summary: 'Google Maps, geolocation, trip tracking, routes, and map-centric product experiences.'
@@ -113,6 +128,32 @@ export const techStack: TagData[] = [
         name: 'Native Bridges',
         color: '#7F52FF',
         summary: 'Swift, Kotlin, platform channels, and SDK configuration for integration-heavy mobile work.'
+    },
+    {
+        name: 'SDK Integration',
+        color: '#0F766E',
+        summary: 'Third-party SDK setup for auth, analytics, payments, maps, chat, and business-specific mobile capabilities.'
+    },
+    {
+        name: 'Performance Optimization',
+        color: '#F97316',
+        summary: 'Smoother rendering, startup improvements, memory-aware flows, and production tuning on real devices.'
+    },
+    {
+        name: 'Testing & QA',
+        color: '#22C55E',
+        summary: 'Regression awareness, release validation, edge-case coverage, and practical QA support before shipping.'
+    },
+    {
+        name: 'Git & GitHub',
+        color: '#111827',
+        skillIcon: 'github',
+        summary: 'Branching, pull requests, code review, issue tracking, and collaborative delivery across engineering teams.'
+    },
+    {
+        name: 'Agile Delivery',
+        color: '#2563EB',
+        summary: 'Sprint planning, task breakdown, follow-up, and stakeholder-aware execution through active product cycles.'
     },
     {
         name: 'CI/CD & Releases',

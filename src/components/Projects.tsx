@@ -314,14 +314,6 @@ const Projects = () => {
     const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
     const [showContributorModal, setShowContributorModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-    const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
-
-    useEffect(() => {
-        const handleResize = () => setWindowWidth(window.innerWidth);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
 
     const projectsData = useMemo(() => {
@@ -368,43 +360,9 @@ const Projects = () => {
         return matrix[b.length][a.length];
     };
 
-    const availableFilters = useMemo(() => {
-        const filterDefinitions = [
-            { name: 'Flutter', matches: (project: Project) => (project.stack || []).includes('Flutter') },
-            { name: 'Clean Architecture', matches: (project: Project) => (project.stack || []).includes('Clean Architecture') },
-            { name: 'Bloc / Cubit', matches: (project: Project) => (project.stack || []).includes('Bloc / Cubit') },
-            { name: 'Provider / Riverpod', matches: (project: Project) => (project.stack || []).includes('Provider / Riverpod') },
-            { name: 'Firebase', matches: (project: Project) => (project.stack || []).includes('Firebase') },
-            { name: 'REST APIs', matches: (project: Project) => (project.stack || []).includes('REST APIs') },
-            { name: 'Maps & Location', matches: (project: Project) => (project.stack || []).includes('Maps & Location') },
-            { name: 'Local Storage', matches: (project: Project) => (project.stack || []).includes('Local Storage') },
-            { name: 'Transport & Logistics', matches: (project: Project) => project.category === 'Transport & Logistics' },
-            { name: 'Social & Lifestyle', matches: (project: Project) => project.category === 'Social & Lifestyle' },
-            { name: 'Education & Utilities', matches: (project: Project) => project.category === 'Education & Utilities' },
-            { name: 'Android', matches: (project: Project) => (project.platforms || []).includes('Android') },
-            { name: 'iOS', matches: (project: Project) => (project.platforms || []).includes('iOS') },
-        ];
-
-        return filterDefinitions
-            .map((filter) => ({
-                ...filter,
-                count: projectsData.filter(filter.matches).length
-            }))
-            .filter((filter) => filter.count > 0);
-    }, [projectsData]);
-
     const filteredProjects = useMemo(() => {
-        let results = projectsData;
-        if (selectedFilters.length > 0) {
-            results = results.filter(project => {
-                return selectedFilters.every((selectedFilter) => {
-                    const matchingFilter = availableFilters.find((filter) => filter.name === selectedFilter);
-                    return matchingFilter ? matchingFilter.matches(project) : true;
-                });
-            });
-        }
         if (searchQuery.length < 2) {
-            return [...results].sort((a, b) => {
+            return [...projectsData].sort((a, b) => {
                 const aVal = a.listing && a.listing > 0 ? a.listing : 999999;
                 const bVal = b.listing && b.listing > 0 ? b.listing : 999999;
                 if (aVal !== bVal) return aVal - bVal;
@@ -413,7 +371,7 @@ const Projects = () => {
         }
 
         const query = searchQuery.toLowerCase();
-        const scored = results.map(project => {
+        const scored = projectsData.map(project => {
             let minDistance = Infinity;
             const checkTerm = (term: string) => {
                 const lower = term.toLowerCase();
@@ -444,15 +402,7 @@ const Projects = () => {
             .filter(item => item.minDistance <= 2)
             .sort((a, b) => a.minDistance - b.minDistance)
             .map(item => item.project);
-    }, [availableFilters, searchQuery, projectsData, selectedFilters]);
-
-    const toggleFilter = (filterName: string) => {
-        setSelectedFilters(prev =>
-            prev.includes(filterName)
-                ? prev.filter(t => t !== filterName)
-                : [...prev, filterName]
-        );
-    };
+    }, [searchQuery, projectsData]);
 
     useEffect(() => {
         anime({
@@ -532,50 +482,6 @@ const Projects = () => {
                     </div>
                 </div>
 
-                {/* Filter Tags - Reduced MB */}
-                <div className={`mb-8 flex flex-wrap items-center ${windowWidth < 460 ? 'gap-2' : 'gap-2.5'}`}>
-                    <span className="text-xs font-black text-sec mr-2.5 uppercase tracking-widest opacity-60">
-                        Filter by:
-                    </span>
-
-                    {/* Tags Container */}
-                    <div className="flex flex-wrap gap-2 items-center">
-                        {availableFilters.map((filter) => {
-                            const isActive = selectedFilters.includes(filter.name);
-
-                            return (
-                                <button
-                                    key={filter.name}
-                                    onClick={() => toggleFilter(filter.name)}
-                                    className={`
-                                        flex items-center gap-2 rounded-xl border font-bold cursor-pointer transition-all duration-300
-                                        backdrop-blur-xl shadow-sm whitespace-nowrap
-                                        ${windowWidth < 460 ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm'}
-                                        ${isActive
-                                            ? 'border-accent bg-[rgba(59,130,246,0.12)] text-accent scale-105 z-10 shadow-[0_8px_16px_-4px_rgba(59,130,246,0.25)]'
-                                            : 'border-[var(--navbar-border)] bg-[var(--card-bg)] text-sec'}
-                                    `}
-                                >
-                                    <span className={`h-2.5 w-2.5 rounded-full ${isActive ? 'bg-accent' : 'bg-[var(--text-muted)]/40'}`} />
-                                    {filter.name}
-                                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${isActive ? 'bg-accent/10' : 'bg-black/5 dark:bg-white/5'}`}>
-                                        {filter.count}
-                                    </span>
-                                </button>
-                            );
-                        })}
-
-                        {selectedFilters.length > 0 && (
-                            <button
-                                onClick={() => setSelectedFilters([])}
-                                className="px-3 py-2 bg-transparent border-none text-accent text-xs font-black cursor-pointer transition-all duration-200 uppercase tracking-widest ml-1 hover:opacity-70"
-                            >
-                                [ Reset ]
-                            </button>
-                        )}
-                    </div>
-                </div>
-
                 {/* Projects Grid */}
                 {filteredProjects.length > 0 ? (
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
@@ -593,9 +499,9 @@ const Projects = () => {
                     </div>
                 ) : (
                     <div className="rounded-[28px] border border-dashed border-[var(--navbar-border)] bg-[var(--card-bg)] p-8 text-center">
-                        <h3 className="text-2xl font-black text-primary">No projects match this view yet.</h3>
+                        <h3 className="text-2xl font-black text-primary">No projects match this search yet.</h3>
                         <p className="mt-3 text-sec">
-                            Try clearing one of the selected filters or searching with a broader keyword.
+                            Try a broader keyword or clear the current search.
                         </p>
                     </div>
                 )}

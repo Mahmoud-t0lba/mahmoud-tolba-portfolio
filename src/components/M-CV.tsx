@@ -132,9 +132,9 @@ const MCV = ({ onClose, onProjectClick }: Omit<MCVProps, 'isOpen'>) => {
                         </div>
                     </div>
 
-                    <div className="custom-scrollbar flex-1 overflow-y-auto px-4 py-2 md:px-8">
-                        <div className="mx-auto max-w-5xl space-y-12 pb-10">
-                            <header className="space-y-8">
+                    <div className="custom-scrollbar flex-1 overflow-y-auto px-4 py-3 md:px-8 md:py-4">
+                        <div className="mx-auto max-w-5xl space-y-14 pb-14">
+                            <header className="space-y-10">
                                 <div className="space-y-4">
                                     <div className="space-y-2">
                                         <motion.h1
@@ -150,56 +150,56 @@ const MCV = ({ onClose, onProjectClick }: Omit<MCVProps, 'isOpen'>) => {
                                     </div>
                                 </div>
 
-                                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                                    <a href={`mailto:${personalInfo.email}`} className="rounded-[24px] border border-black/5 bg-white/45 p-4 transition-colors hover:text-blue-500 dark:border-white/8 dark:bg-white/4">
+                                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                                    <a href={`mailto:${personalInfo.email}`} className="rounded-[24px] border border-black/5 bg-white/45 p-5 transition-colors hover:text-blue-500 dark:border-white/8 dark:bg-white/4 md:p-6">
                                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.24em] text-blue-500">
                                             <Mail size={14} />
                                             Email
                                         </div>
-                                        <div className="mt-3 text-sm font-semibold text-primary break-all">{personalInfo.email}</div>
+                                        <div className="mt-4 text-sm font-semibold leading-7 text-primary break-all">{personalInfo.email}</div>
                                     </a>
-                                    <a href={`tel:${personalInfo.phone.replace(/\s+/g, '')}`} className="rounded-[24px] border border-black/5 bg-white/45 p-4 transition-colors hover:text-blue-500 dark:border-white/8 dark:bg-white/4">
+                                    <a href={`tel:${personalInfo.phone.replace(/\s+/g, '')}`} className="rounded-[24px] border border-black/5 bg-white/45 p-5 transition-colors hover:text-blue-500 dark:border-white/8 dark:bg-white/4 md:p-6">
                                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.24em] text-blue-500">
                                             <Phone size={14} />
                                             Call
                                         </div>
-                                        <div className="mt-3 text-sm font-semibold text-primary">{personalInfo.phone}</div>
+                                        <div className="mt-4 text-sm font-semibold leading-7 text-primary">{personalInfo.phone}</div>
                                     </a>
-                                    <div className="rounded-[24px] border border-black/5 bg-white/45 p-4 dark:border-white/8 dark:bg-white/4">
+                                    <div className="rounded-[24px] border border-black/5 bg-white/45 p-5 dark:border-white/8 dark:bg-white/4 md:p-6">
                                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.24em] text-blue-500">
                                             <MapPin size={14} />
                                             Location
                                         </div>
-                                        <div className="mt-3 text-sm font-semibold text-primary">{personalInfo.location}</div>
+                                        <div className="mt-4 text-sm font-semibold leading-7 text-primary">{personalInfo.location}</div>
                                     </div>
                                     <a
                                         href={personalInfo.resumeUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="rounded-[24px] border border-black/5 bg-white/45 p-4 transition-colors hover:text-blue-500 dark:border-white/8 dark:bg-white/4"
+                                        className="rounded-[24px] border border-black/5 bg-white/45 p-5 transition-colors hover:text-blue-500 dark:border-white/8 dark:bg-white/4 md:p-6"
                                     >
                                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.24em] text-blue-500">
                                             <Download size={14} />
                                             Resume
                                         </div>
-                                        <div className="mt-3 text-sm font-semibold text-primary">Open PDF version</div>
+                                        <div className="mt-4 text-sm font-semibold leading-7 text-primary">Open PDF version</div>
                                     </a>
                                 </div>
 
-                                <div className="grid gap-4 lg:grid-cols-[1.35fr_0.95fr]">
-                                    <section className="rounded-[28px] border border-black/5 bg-white/40 p-6 dark:border-white/8 dark:bg-white/4">
-                                        <div className="space-y-4">
+                                <div className="grid gap-5 lg:grid-cols-[1.35fr_0.95fr] xl:gap-6">
+                                    <section className="rounded-[28px] border border-black/5 bg-white/40 p-6 dark:border-white/8 dark:bg-white/4 md:p-7">
+                                        <div className="space-y-5">
                                             <h3 className={sectionTitleClass}>Brief About Me</h3>
-                                            <p className="text-base leading-8 text-sec md:text-lg">
+                                            <p className="pt-1 text-base leading-8 text-sec md:text-lg">
                                                 {personalInfo.bio}
                                             </p>
                                         </div>
                                     </section>
 
-                                    <section className="rounded-[28px] border border-black/5 bg-white/40 p-6 dark:border-white/8 dark:bg-white/4">
-                                        <div className="space-y-4">
+                                    <section className="rounded-[28px] border border-black/5 bg-white/40 p-6 dark:border-white/8 dark:bg-white/4 md:p-7">
+                                        <div className="space-y-5">
                                             <h3 className={sectionTitleClass}>Connect</h3>
-                                            <div className="grid gap-3">
+                                            <div className="grid gap-4 pt-1">
                                                 {socialLinks.map((link) => (
                                                     <a
                                                         key={link.label}
@@ -207,7 +207,7 @@ const MCV = ({ onClose, onProjectClick }: Omit<MCVProps, 'isOpen'>) => {
                                                         target={link.external ? '_blank' : undefined}
                                                         rel={link.external ? 'noopener noreferrer' : undefined}
                                                         onClick={() => trackClick(link.label)}
-                                                        className="flex items-center gap-3 rounded-2xl border border-black/5 bg-white/45 px-4 py-3 text-sm font-bold text-sec transition-all hover:border-blue-500/20 hover:text-blue-500 dark:border-white/8 dark:bg-white/4"
+                                                        className="flex items-center gap-4 rounded-2xl border border-black/5 bg-white/45 px-4 py-4 text-sm font-bold text-sec transition-all hover:border-blue-500/20 hover:text-blue-500 dark:border-white/8 dark:bg-white/4"
                                                     >
                                                         <span className="rounded-xl bg-black/5 p-2 text-blue-500 dark:bg-white/5">
                                                             {getSocialIcon(link.name)}
@@ -221,25 +221,25 @@ const MCV = ({ onClose, onProjectClick }: Omit<MCVProps, 'isOpen'>) => {
                                 </div>
                             </header>
 
-                            <div className="grid gap-10 lg:grid-cols-[1.45fr_0.95fr]">
-                                <div className="space-y-12">
-                                    <section className="space-y-5">
+                            <div className="grid gap-12 lg:grid-cols-[1.45fr_0.95fr] xl:gap-14">
+                                <div className="space-y-14">
+                                    <section className="space-y-6">
                                         <h3 className={sectionTitleClass}>Resume Snapshot</h3>
-                                        <div className="grid gap-3 sm:grid-cols-2">
+                                        <div className="grid gap-4 sm:grid-cols-2">
                                             {resumeHighlights.map((item) => (
-                                                <div key={item} className="rounded-[24px] border border-black/5 bg-white/45 p-4 dark:border-white/8 dark:bg-white/4">
-                                                    <p className="text-sm leading-7 text-sec font-semibold">{item}</p>
+                                                <div key={item} className="rounded-[24px] border border-black/5 bg-white/45 p-5 dark:border-white/8 dark:bg-white/4">
+                                                    <p className="text-sm leading-8 text-sec font-semibold">{item}</p>
                                                 </div>
                                             ))}
                                         </div>
                                     </section>
 
-                                    <section className="space-y-6">
+                                    <section className="space-y-7">
                                         <h3 className={sectionTitleClass}>Experience</h3>
-                                        <div className="space-y-6">
+                                        <div className="space-y-7">
                                             {experiences.map((experience) => (
-                                                <div key={`${experience.company}-${experience.period}`} className="rounded-[28px] border border-black/5 bg-white/40 p-6 dark:border-white/8 dark:bg-white/4">
-                                                    <div className="space-y-5">
+                                                <div key={`${experience.company}-${experience.period}`} className="rounded-[28px] border border-black/5 bg-white/40 p-6 dark:border-white/8 dark:bg-white/4 md:p-7">
+                                                    <div className="space-y-6">
                                                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                                                             <div className="space-y-2">
                                                                 <h4 className="text-2xl font-black tracking-tight text-primary">{experience.company}</h4>
@@ -254,7 +254,7 @@ const MCV = ({ onClose, onProjectClick }: Omit<MCVProps, 'isOpen'>) => {
                                                         <p className="text-sm leading-8 text-sec">{experience.description}</p>
 
                                                         {'highlights' in experience && Array.isArray(experience.highlights) && (
-                                                            <div className="space-y-3">
+                                                            <div className="space-y-4 pt-1">
                                                                 {experience.highlights.map((item: string) => (
                                                                     <div key={item} className="flex gap-3 text-sm leading-7 text-sec">
                                                                         <span className="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />
@@ -269,17 +269,17 @@ const MCV = ({ onClose, onProjectClick }: Omit<MCVProps, 'isOpen'>) => {
                                         </div>
                                     </section>
 
-                                    <section className="space-y-6">
+                                    <section className="space-y-7">
                                         <h3 className={sectionTitleClass}>Projects</h3>
-                                        <div className="grid gap-4 md:grid-cols-2">
+                                        <div className="grid gap-5 md:grid-cols-2">
                                             {projects.map((project) => (
                                                 <motion.div
                                                     key={project.id}
                                                     whileHover={{ y: -4 }}
                                                     onClick={() => onProjectClick(project)}
-                                                    className="group cursor-pointer rounded-[28px] border border-black/5 bg-white/40 p-5 dark:border-white/8 dark:bg-white/4"
+                                                    className="group cursor-pointer rounded-[28px] border border-black/5 bg-white/40 p-5 dark:border-white/8 dark:bg-white/4 md:p-6"
                                                 >
-                                                    <div className="space-y-4">
+                                                    <div className="space-y-5">
                                                         <div className="flex items-start justify-between gap-4">
                                                             <div className="space-y-2">
                                                                 <h4 className="text-2xl font-black tracking-tight text-primary transition-colors group-hover:text-blue-500">
@@ -310,52 +310,52 @@ const MCV = ({ onClose, onProjectClick }: Omit<MCVProps, 'isOpen'>) => {
                                     </section>
                                 </div>
 
-                                <aside className="space-y-8">
-                                    <section className="space-y-5">
+                                <aside className="space-y-10">
+                                    <section className="space-y-6">
                                         <h3 className={sectionTitleClass}>Skills</h3>
-                                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
                                             {localTags.map((skill) => (
-                                                <div key={skill.name} className="rounded-[22px] border border-black/5 bg-white/40 p-4 dark:border-white/8 dark:bg-white/4">
+                                                <div key={skill.name} className="rounded-[22px] border border-black/5 bg-white/40 p-5 dark:border-white/8 dark:bg-white/4">
                                                     <h4 className="text-sm font-black uppercase tracking-[0.18em] text-primary">{skill.name}</h4>
                                                     {skill.summary && (
-                                                        <p className="mt-2 text-sm leading-7 text-sec">{skill.summary}</p>
+                                                        <p className="mt-3 text-sm leading-7 text-sec">{skill.summary}</p>
                                                     )}
                                                 </div>
                                             ))}
                                         </div>
                                     </section>
 
-                                    <section className="space-y-5">
+                                    <section className="space-y-6">
                                         <h3 className={sectionTitleClass}>Companies</h3>
-                                        <div className="flex flex-wrap gap-2.5">
+                                        <div className="flex flex-wrap gap-3">
                                             {companies.map((company) => (
-                                                <span key={company} className="rounded-full border border-black/5 bg-white/40 px-4 py-2 text-sm font-bold text-primary dark:border-white/8 dark:bg-white/4">
+                                                <span key={company} className="rounded-full border border-black/5 bg-white/40 px-4 py-2.5 text-sm font-bold text-primary dark:border-white/8 dark:bg-white/4">
                                                     {company}
                                                 </span>
                                             ))}
                                         </div>
                                     </section>
 
-                                    <section className="space-y-5">
+                                    <section className="space-y-6">
                                         <h3 className={sectionTitleClass}>Education</h3>
-                                        <div className="space-y-4">
+                                        <div className="space-y-5">
                                             {education.map((item) => (
-                                                <div key={item.title} className="rounded-[24px] border border-black/5 bg-white/40 p-5 dark:border-white/8 dark:bg-white/4">
+                                                <div key={item.title} className="rounded-[24px] border border-black/5 bg-white/40 p-5 dark:border-white/8 dark:bg-white/4 md:p-6">
                                                     <h4 className="text-lg font-black text-primary">{item.title}</h4>
-                                                    <p className="mt-2 text-sm text-sec">{item.institution}</p>
-                                                    <p className="mt-3 text-[11px] font-black uppercase tracking-[0.18em] text-muted">{item.period}</p>
+                                                    <p className="mt-3 text-sm leading-7 text-sec">{item.institution}</p>
+                                                    <p className="mt-4 text-[11px] font-black uppercase tracking-[0.18em] text-muted">{item.period}</p>
                                                 </div>
                                             ))}
                                         </div>
                                     </section>
 
-                                    <section className="space-y-5">
+                                    <section className="space-y-6">
                                         <h3 className={sectionTitleClass}>Certifications</h3>
-                                        <div className="space-y-3">
+                                        <div className="space-y-4">
                                             {certifications.map((item) => (
-                                                <div key={item.title} className="rounded-[22px] border border-black/5 bg-white/40 p-4 dark:border-white/8 dark:bg-white/4">
+                                                <div key={item.title} className="rounded-[22px] border border-black/5 bg-white/40 p-5 dark:border-white/8 dark:bg-white/4">
                                                     <h4 className="text-sm font-bold leading-7 text-primary">{item.title}</h4>
-                                                    <p className="mt-2 text-[11px] font-black uppercase tracking-[0.18em] text-muted">{item.issuer}</p>
+                                                    <p className="mt-3 text-[11px] font-black uppercase tracking-[0.18em] text-muted">{item.issuer}</p>
                                                 </div>
                                             ))}
                                         </div>
