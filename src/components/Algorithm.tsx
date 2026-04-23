@@ -8,7 +8,7 @@ interface AlgorithmProps {
     currentSection: string;
     isContactOpen: boolean;
     // parameter name intentionally unused in the type signature
-    onNavigate: (_section: 'home' | 'stack' | 'projects' | 'secret' | 'dashboard' | 'view_link') => void;
+    onNavigate: (_section: 'home' | 'stack' | 'projects' | 'view_link') => void;
 }
 
 interface ProjectStats {
@@ -68,12 +68,6 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
 
             lastSectionCheck.current = now;
         }, 1000);
-
-        // Stop tracking if we enter admin sections
-        if (currentSection === 'dashboard' || currentSection === 'secret') {
-            sessionStorage.removeItem('revil_link_id');
-            metrics.current.baseMetrics = null;
-        }
 
         return () => clearInterval(interval);
     }, [currentSection, firestore]);
@@ -167,7 +161,7 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
     const hasTrackedVisit = useRef(false);
     useEffect(() => {
         const trackGlobalVisit = async () => {
-            if (hasTrackedVisit.current || currentSection === 'dashboard' || currentSection === 'secret') return;
+            if (hasTrackedVisit.current) return;
             hasTrackedVisit.current = true;
 
             try {

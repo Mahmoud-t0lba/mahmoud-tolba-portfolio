@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { LayoutGroup, AnimatePresence, motion } from 'framer-motion';
 import Hero from './components/Hero';
 import Navbar from './components/Navbar';
@@ -6,9 +6,6 @@ import Stack from './components/Stack';
 import PageTransition from './components/PageTransition';
 import Projects from './components/Projects';
 import MContact from './components/M-Contact';
-import SecretPage from './components/SecretPage';
-const Dashboard = lazy(() => import('./components/Dashboard'));
-import { ChevronRight } from 'lucide-react';
 import Loader from './components/reactbits/Loader';
 import { Algorithm } from './components/Algorithm';
 import MCV from './components/M-CV';
@@ -18,7 +15,7 @@ import { ProjectData as Project, ContributorData as Contributor } from './types'
 import { firebaseEnabled } from './lib/firebase';
 import { siteBasePath } from './lib/site';
 
-type Section = 'home' | 'stack' | 'projects' | 'secret' | 'dashboard' | 'view_link';
+type Section = 'home' | 'stack' | 'projects' | 'view_link';
 
 function App() {
   const [currentSection, setCurrentSection] = useState<Section>(() => {
@@ -32,9 +29,7 @@ function App() {
     }
     return 'home';
   });
-  const [previousSection, setPreviousSection] = useState<Section>('home');
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [nextSection, setNextSection] = useState<Section>('home');
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [forceHideLoading, setForceHideLoading] = useState(false);
   const [isDataReady, setIsDataReady] = useState(false);
@@ -107,20 +102,11 @@ function App() {
       const nextIdx = order.indexOf(section);
 
       let dir = 0;
-      if (section === 'secret') {
-        dir = 2;
-      } else if (currentSection === 'secret') {
-        dir = -2;
-      } else if (currIdx !== -1 && nextIdx !== -1) {
+      if (currIdx !== -1 && nextIdx !== -1) {
         dir = nextIdx > currIdx ? 1 : -1;
       }
 
-      if (section === 'secret') {
-        setPreviousSection(currentSection);
-      }
-
       setDirection(dir);
-      setNextSection(section);
       setCurrentSection(section);
 
       setIsTransitioning(true);
@@ -157,10 +143,6 @@ function App() {
         return <Stack />;
       case 'projects':
         return <Projects />;
-      case 'secret':
-        return <SecretPage onNavigate={navigateTo} />;
-      case 'dashboard':
-        return <Suspense fallback={<Loader isOpen={true} isFullScreen={true} />}><Dashboard onNavigate={navigateTo} /></Suspense>;
       case 'view_link':
         return <Hero onLoaded={() => setIsDataReady(true)} onAnimationComplete={handleHeroAnimationComplete} isReady={!appLoading} />;
       default:
@@ -175,7 +157,6 @@ function App() {
   const touchEndY = useRef(0);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (currentSection === 'dashboard') return;
     touchStartX.current = e.targetTouches[0].clientX;
     touchStartY.current = e.targetTouches[0].clientY;
     touchEndX.current = e.targetTouches[0].clientX;
@@ -183,13 +164,12 @@ function App() {
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (currentSection === 'dashboard') return;
     touchEndX.current = e.targetTouches[0].clientX;
     touchEndY.current = e.targetTouches[0].clientY;
   };
 
   const handleTouchEnd = () => {
-    if (isContactModalOpen || currentSection === 'dashboard' || document.body.style.overflow === 'hidden') {
+    if (isContactModalOpen || document.body.style.overflow === 'hidden') {
       touchStartX.current = 0; touchEndX.current = 0; touchStartY.current = 0; touchEndY.current = 0;
       return;
     }
@@ -213,13 +193,7 @@ function App() {
     const scrolledToBottom = Math.ceil(container.clientHeight + container.scrollTop) >= container.scrollHeight - 5;
     const scrolledToTop = container.scrollTop <= 5;
 
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      if (deltaX > SWIPE_THRESHOLD && currentSection !== 'secret') {
-        navigateTo('secret');
-      } else if (deltaX < -SWIPE_THRESHOLD && currentSection === 'secret') {
-        navigateTo(previousSection);
-      }
-    } else {
+    if (Math.abs(deltaX) <= Math.abs(deltaY)) {
       if (deltaY > SWIPE_THRESHOLD && scrolledToBottom) {
         if (currentSection === 'home' || currentSection === 'view_link') navigateTo('stack');
         else if (currentSection === 'stack') navigateTo('projects');
@@ -246,7 +220,7 @@ function App() {
       // This is the only reliable way to beat trackpad momentum.
       if (now < navigationCooldownUntil.current) return;
 
-      if (isContactModalOpen || currentSection === 'dashboard' || document.body.style.overflow === 'hidden') return;
+      if (isContactModalOpen || document.body.style.overflow === 'hidden') return;
       if (isTransitioning) return;
 
       const container = getScrollContainer(currentSection);
@@ -325,7 +299,7 @@ function App() {
       const isPullingDown = pullDelta > 10; // 10px threshold
       const scrolledToTop = container.scrollTop <= 2;
 
-      if (scrolledToTop && isPullingDown && !isContactModalOpen && currentSection !== 'dashboard') {
+      if (scrolledToTop && isPullingDown && !isContactModalOpen) {
         if (e.cancelable) e.preventDefault();
       }
     };
@@ -334,21 +308,20 @@ function App() {
     return () => mainContainer.removeEventListener('touchmove', preventPullToRefresh);
   }, [currentSection, isContactModalOpen]);
 
-  // Fixes #4: Prevent unintended yellow page UI rotation on transitions
   const variants = {
-    enter: (direction: number) => {
-      if (Math.abs(direction) === 2) {
-        return { x: direction === 2 ? '100%' : '-100%', y: 0, opacity: 1, scale: 1 };
-      }
-      return { y: direction > 0 ? '100vh' : '-100vh', x: 0, opacity: 1, scale: 0.95 };
-    },
+    enter: (direction: number) => ({
+      y: direction > 0 ? '100vh' : '-100vh',
+      x: 0,
+      opacity: 1,
+      scale: 0.95
+    }),
     center: { x: 0, y: 0, opacity: 1, scale: 1 },
-    exit: (direction: number) => {
-      if (Math.abs(direction) === 2) {
-        return { x: direction === 2 ? '-100%' : '100%', y: 0, opacity: 1, scale: 1 };
-      }
-      return { y: direction < 0 ? '100vh' : '-100vh', x: 0, opacity: 1, scale: 0.95 };
-    }
+    exit: (direction: number) => ({
+      y: direction < 0 ? '100vh' : '-100vh',
+      x: 0,
+      opacity: 1,
+      scale: 0.95
+    })
   };
 
   return (
@@ -363,7 +336,7 @@ function App() {
       <Loader isOpen={appLoading} isFullScreen={true} />
       {firebaseEnabled && <Algorithm currentSection={currentSection} isContactOpen={isContactModalOpen} onNavigate={navigateTo} />}
 
-      {(currentSection === 'home' || currentSection === 'view_link' || currentSection === 'dashboard' || currentSection === 'secret') && (
+      {(currentSection === 'home' || currentSection === 'view_link') && (
         <div className="blob-container" style={{ zIndex: 0 }}>
           <div className="blob blob-1"></div>
           <div className="blob blob-2"></div>
@@ -394,53 +367,15 @@ function App() {
           {renderSection()}
         </motion.div>
       </AnimatePresence>
-      {currentSection !== 'secret' && (
-        <button
-          onClick={() => navigateTo('secret')}
-          style={{
-            position: 'fixed',
-            right: 0,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRight: 'none',
-            borderTopLeftRadius: '12px',
-            borderBottomLeftRadius: '12px',
-            padding: '12px 4px',
-            zIndex: 40,
-            color: 'var(--text-muted)',
-            transition: 'all 0.2s ease',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-            e.currentTarget.style.paddingRight = '8px';
-            e.currentTarget.style.color = 'var(--text-primary)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-            e.currentTarget.style.paddingRight = '4px';
-            e.currentTarget.style.color = 'var(--text-muted)';
-          }}
-          aria-label="Go to Secret Page"
-        >
-          <ChevronRight size={20} />
-        </button>
-      )}
       <LayoutGroup>
-        {(currentSection !== 'dashboard') && (
-          <Navbar
-            onNavigate={navigateTo}
-            currentSection={currentSection}
-            onOpenContact={openContactModal}
-            isContactOpen={isContactModalOpen}
-            onOpenCV={openCVModal}
-            isCVOpen={isCVModalOpen}
-          />
-        )}
+        <Navbar
+          onNavigate={navigateTo}
+          currentSection={currentSection}
+          onOpenContact={openContactModal}
+          isContactOpen={isContactModalOpen}
+          onOpenCV={openCVModal}
+          isCVOpen={isCVModalOpen}
+        />
         <AnimatePresence>
           {isContactModalOpen && (
             <MContact onClose={closeContactModal} />
@@ -475,7 +410,7 @@ function App() {
         isTransitioning={isTransitioning}
         onCurtainCovered={handleCurtainCovered}
         onTransitionComplete={handleTransitionComplete}
-        nextSectionName={nextSection}
+        nextSectionName={currentSection}
         direction={direction}
       />
     </main>

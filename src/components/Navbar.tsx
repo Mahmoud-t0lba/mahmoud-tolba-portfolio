@@ -2,7 +2,7 @@ import { Home, Layers, FolderKanban, Mail, Moon, Sun, FileText } from 'lucide-re
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-type NavigateSection = 'home' | 'stack' | 'projects' | 'secret' | 'dashboard' | 'view_link';
+type NavigateSection = 'home' | 'stack' | 'projects' | 'view_link';
 
 type NavigateFn = (section: NavigateSection) => void;
 
