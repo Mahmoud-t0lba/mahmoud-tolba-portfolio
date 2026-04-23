@@ -15,6 +15,7 @@ import MCV from './components/M-CV';
 import MProjectView from './components/M-ProjectView';
 import MContributorView, { Contributor as ContributorViewData } from './components/M-ContributorView';
 import { ProjectData as Project, ContributorData as Contributor } from './types';
+import { firebaseEnabled } from './lib/firebase';
 
 type Section = 'home' | 'stack' | 'projects' | 'secret' | 'dashboard' | 'view_link';
 
@@ -359,7 +360,7 @@ function App() {
       onTouchEnd={handleTouchEnd}
     >
       <Loader isOpen={appLoading} isFullScreen={true} />
-      <Algorithm currentSection={currentSection} isContactOpen={isContactModalOpen} onNavigate={navigateTo} />
+      {firebaseEnabled && <Algorithm currentSection={currentSection} isContactOpen={isContactModalOpen} onNavigate={navigateTo} />}
 
       {(currentSection === 'home' || currentSection === 'view_link' || currentSection === 'dashboard' || currentSection === 'secret') && (
         <div className="blob-container" style={{ zIndex: 0 }}>

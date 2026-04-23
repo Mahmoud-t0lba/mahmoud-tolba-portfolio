@@ -1,54 +1,14 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { projects as localProjects, techStack as localTags } from '../data/portfolioData';
 import { motion, AnimatePresence } from 'framer-motion';
 import anime from 'animejs';
 import { X, Search } from 'lucide-react';
-import { db } from '../lib/firebase';
 import { sanitizeSvg } from '../lib/sanitize';
-import { collection, onSnapshot, doc } from 'firebase/firestore';
 
 import MProjectView from './M-ProjectView';
 import MContributorView, { Contributor } from './M-ContributorView';
 import { ProjectData as Project, TagData as Tag, ContributorData } from '../types';
-import { getStackIcon, getTechColor, isVideoFile } from '../utils/projectUtils';
-
-interface RawContributorData {
-    Name?: string;
-    Role?: string;
-    Image?: string;
-    "Social Accounts"?: Record<string, string>;
-}
-
-interface RawTagData {
-    Name?: string;
-    Color?: string;
-    Icon?: string;
-}
-
-interface ProjectContributorData {
-    "Contributor Name"?: string;
-    "Role at Project"?: string;
-}
-
-interface FirestoreProject {
-    id: string;
-    Title?: string;
-    Description?: string;
-    "Project Images"?: string[];
-    Stack?: (string | RawTagData)[] | Record<string, string | RawTagData>;
-    Tags?: Record<string, string | RawTagData>;
-    Contributors?: Record<string, ProjectContributorData>;
-    "Repository Link"?: string;
-    "Live Link"?: string;
-    "Download Link"?: string;
-    Views?: {
-        Project?: number;
-        Github?: number;
-        Live?: number;
-        Download?: number;
-    };
-    Listing?: number | string;
-    listing?: number | string;
-}
+import { getTechColor, isVideoFile } from '../utils/projectUtils';
 
 const CardVideo = ({ src, isActive }: { src: string; isActive: boolean }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -133,22 +93,64 @@ const CardImage = ({ src, alt }: { src: string; alt: string }) => {
     );
 };
 
+const ProjectPlaceholder = ({ project }: { project: Project }) => {
+    const accent = getTechColor(project.stack?.[0] || project.tags?.[0]?.name || 'Flutter');
+
+    return (
+        <div
+            className="absolute inset-0"
+            style={{
+                background: `linear-gradient(145deg, ${accent} 0%, rgba(15, 23, 42, 0.96) 55%, rgba(2, 6, 23, 1) 100%)`
+            }}
+        >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.28),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.12),transparent_35%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_35%,rgba(0,0,0,0.2))]" />
+            <div className="relative h-full flex flex-col justify-between p-5 text-white">
+                <div className="flex flex-wrap gap-2">
+                    {(project.platforms || []).slice(0, 2).map((platform) => (
+                        <span key={platform} className="rounded-full border border-white/25 bg-white/12 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]">
+                            {platform}
+                        </span>
+                    ))}
+                </div>
+
+                <div>
+                    {project.role && (
+                        <div className="mb-2 text-[10px] font-black uppercase tracking-[0.22em] text-white/65">
+                            {project.role}
+                        </div>
+                    )}
+                    <div className="text-2xl font-black tracking-tight">
+                        {project.title || project.name}
+                    </div>
+                    {project.category && (
+                        <div className="mt-2 text-xs font-semibold text-white/72">
+                            {project.category}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const ProjectCard = ({ project, index, onClick }: { project: Project; index: number; onClick: () => void }) => {
     const cardRef = useRef<HTMLDivElement>(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const [showContributors, setShowContributors] = useState(false);
+    const mediaItems = project.images.length > 0 ? project.images : ['__placeholder__'];
 
     // Slideshow logic (Card Hover)
     useEffect(() => {
         let interval: ReturnType<typeof setInterval> | undefined;
-        if (isHovered && project.images.length > 1) {
+        if (isHovered && mediaItems.length > 1) {
             interval = setInterval(() => {
-                setCurrentImageIndex((prev) => (prev + 1) % project.images.length);
+                setCurrentImageIndex((prev) => (prev + 1) % mediaItems.length);
             }, 2000);
         }
         return () => clearInterval(interval);
-    }, [isHovered, project.images.length]);
+    }, [isHovered, mediaItems.length]);
 
     // Cycle between Stack and Contributors
     useEffect(() => {
@@ -201,15 +203,17 @@ const ProjectCard = ({ project, index, onClick }: { project: Project; index: num
                     <div
                         className="flex h-full transition-transform duration-500 ease-in-out"
                         style={{
-                            width: `${project.images.length * 100}%`,
-                            transform: `translateX(-${(currentImageIndex * 100) / project.images.length}%)`,
+                            width: `${mediaItems.length * 100}%`,
+                            transform: `translateX(-${(currentImageIndex * 100) / mediaItems.length}%)`,
                         }}
                     >
-                        {project.images.map((img, i) => {
+                        {mediaItems.map((img, i) => {
                             const isVideo = isVideoFile(img);
                             return (
-                                <div key={i} style={{ width: `${100 / project.images.length}%` }} className="h-full relative overflow-hidden">
-                                    {isVideo ? (
+                                <div key={i} style={{ width: `${100 / mediaItems.length}%` }} className="h-full relative overflow-hidden">
+                                    {img === '__placeholder__' ? (
+                                        <ProjectPlaceholder project={project} />
+                                    ) : isVideo ? (
                                         <CardVideo src={img} isActive={isHovered && currentImageIndex === i} />
                                     ) : (
                                         <CardImage src={img} alt={project.title || 'Project'} />
@@ -308,13 +312,12 @@ const ProjectCard = ({ project, index, onClick }: { project: Project; index: num
 const Projects = () => {
     const titleRef = useRef<HTMLHeadingElement>(null);
     const handwritingRef = useRef<HTMLDivElement>(null);
-    const [availableContributors, setAvailableContributors] = useState<Contributor[]>([]);
-    const [availableTags, setAvailableTags] = useState<Tag[]>([]);
     const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
     const [showContributorModal, setShowContributorModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+    const [availableTags] = useState<Tag[]>(localTags);
 
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
@@ -322,144 +325,25 @@ const Projects = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Fetch Data
-    useEffect(() => {
-        // Contributors
-        const unsubDoc = onSnapshot(doc(db, 'Tags', 'Contributors'), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                const loaded = Object.entries(data)
-                    .filter(([, val]) => val && typeof val === 'object' && (val as RawContributorData).Name)
-                    .map(([id, val]: [string, RawContributorData]): Contributor => ({
-                        id,
-                        name: val.Name || '',
-                        role: val.Role || '',
-                        jobTitle: val.Role || '',
-                        image: val.Image || '',
-                        links: val["Social Accounts"] || {}
-                    }));
-                setAvailableContributors(prev => {
-                    const filtered = prev.filter(p => !loaded.some(l => l.id === p.id));
-                    return [...filtered, ...loaded];
-                });
-            }
-        });
 
-        const unsubCol = onSnapshot(collection(db, 'Tags', 'Contributors', 'Profiles'), (snapshot) => {
-            const loaded = snapshot.docs.map(d => {
-                const val = d.data();
-                return {
-                    id: d.id,
-                    name: val.Name || val.name || '',
-                    role: val.Role || val.role || '',
-                    jobTitle: val.Role || val.role || '',
-                    image: val.Image || val.image || '',
-                    links: val["Social Accounts"] || val.links || val.socials || {}
-                } as Contributor;
-            });
-            setAvailableContributors(prev => {
-                const filtered = prev.filter(p => !loaded.some(l => l.id === p.id));
-                return [...filtered, ...loaded];
-            });
-        });
-
-        // Tags
-        const unsubTags = onSnapshot(doc(db, 'Tags', 'Tags'), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                const loaded = Object.entries(data).map(([id, val]: [string, RawTagData]): Tag => ({
-                    id,
-                    name: val.Name || 'Untitled',
-                    color: val.Color || '#60a5fa',
-                    iconSvg: val.Icon || ''
-                }));
-                setAvailableTags(loaded);
-            }
-        });
-
-        return () => {
-            unsubDoc();
-            unsubCol();
-            unsubTags();
-        };
-    }, []);
-
-    const [rawProjects, setRawProjects] = useState<FirestoreProject[]>([]);
-
-    useEffect(() => {
-        const unsub = onSnapshot(collection(db, 'Projects'), (snapshot) => {
-            setRawProjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-        });
-        return () => unsub();
-    }, []);
-
-    // Memoize projects data to avoid infinite loops and unnecessary re-calculations
     const projectsData = useMemo(() => {
-        return rawProjects.map(data => {
-            const v = data.Views || {};
+        return localProjects.map(project => ({
+            ...project,
+            views: project.views || 0,
+            githubViews: project.githubViews || 0,
+            liveViews: project.liveViews || 0,
+            downloadViews: project.downloadViews || 0,
+            contributors: project.contributors || [],
+            listing: project.listing || 0,
+            tags: project.tags?.map(t => ({
+                name: t.name,
+                color: getTechColor(t.name),
+                iconSvg: '' // Can add icons if needed
+            })) || []
+        }));
+    }, []);
 
-            const projectContributors = data.Contributors ? Object.values(data.Contributors).map((c: ProjectContributorData): Contributor => {
-                const name = c["Contributor Name"] || '';
-                const projectRole = c["Role at Project"];
-
-                const fullContrib = availableContributors.find(cont => {
-                    const cName = (cont.name || '').trim().toLowerCase();
-                    const pName = name.trim().toLowerCase();
-                    return cName === pName && cName !== '';
-                });
-
-                return {
-                    name,
-                    role: projectRole || (fullContrib ? (fullContrib.role || fullContrib.jobTitle || 'Contributor') : 'Contributor'),
-                    jobTitle: fullContrib ? (fullContrib.role || fullContrib.jobTitle || 'Contributor') : 'Contributor',
-                    image: fullContrib?.image || '',
-                    links: fullContrib?.links || {}
-                } as Contributor;
-            }) : [];
-
-            const resolveTag = (t: string | RawTagData) => {
-                const name = typeof t === 'string' ? t : (t.Name || 'Unix');
-                const globalTag = availableTags.find(gt => gt.name.toLowerCase() === name.toLowerCase());
-
-                return {
-                    name,
-                    color: (typeof t === 'object' && t.Color) ? t.Color : (globalTag?.color || getTechColor(name)),
-                    iconSvg: (typeof t === 'object' && t.Icon) ? t.Icon : (globalTag?.iconSvg || getStackIcon(name) || '')
-                };
-            };
-
-            const rawStack = data.Stack || [];
-            const normalizedStack = (Array.isArray(rawStack) ? rawStack : Object.values(rawStack))
-                .map(resolveTag)
-                .filter(t => t.name !== 'Unix');
-
-            const rawTags = data.Tags ? Object.values(data.Tags) : [];
-            const normalizedTags = rawTags.map(resolveTag).filter(t => t.name !== 'Unix');
-            const displayTags = normalizedStack.length > 0 ? normalizedStack : normalizedTags;
-
-            return {
-                id: data.id,
-                title: data.Title || data.id,
-                name: data.id,
-                description: data.Description || '',
-                fullDescription: data.Description || '',
-                images: data["Project Images"] || [],
-                stack: normalizedStack.map((t: Tag) => t.name),
-                tags: displayTags,
-                repoLink: data["Repository Link"] || '',
-                liveLink: data["Live Link"] || '',
-                downloadLink: data["Download Link"] || '',
-                views: Number(v.Project || 0) || 0,
-                githubViews: Number(v.Github || 0) || 0,
-                liveViews: Number(v.Live || 0) || 0,
-                downloadViews: Number(v.Download || 0) || 0,
-                contributors: projectContributors,
-                listing: Number(data.Listing ?? data.listing ?? 0) || 0
-            };
-        });
-    }, [rawProjects, availableContributors, availableTags]);
-
-    const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+    const [selectedProjectId, setSelectedProjectId] = useState<string | number | null>(null);
     const selectedProject = useMemo(() =>
         projectsData.find(p => p.id === selectedProjectId) || null,
         [projectsData, selectedProjectId]
@@ -608,7 +492,7 @@ const Projects = () => {
                         <Search size={20} className="text-sec mr-3" />
                         <input
                             type="text"
-                            placeholder="Search projects by title, tags, or contributor..."
+                            placeholder="Search by project, domain, or technology..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="border-none bg-transparent text-primary text-base w-full outline-none font-inter"
@@ -638,7 +522,7 @@ const Projects = () => {
 
                             return (
                                 <button
-                                    key={tag.id}
+                                    key={tag.id || tag.name}
                                     onClick={() => toggleTag(tag.name)}
                                     className={`
                                         flex items-center gap-2 rounded-xl border font-bold cursor-pointer transition-all duration-300
@@ -689,7 +573,7 @@ const Projects = () => {
                             index={index}
                             onClick={() => {
                                 window.dispatchEvent(new CustomEvent('revil:project_open', { detail: { id: project.id } }));
-                                setSelectedProjectId(project.id);
+                                setSelectedProjectId(project.id ?? project.name);
                             }}
                         />
                     ))}

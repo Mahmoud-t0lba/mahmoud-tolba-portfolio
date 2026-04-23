@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Github, ExternalLink, ChevronLeft, ChevronRight, Upload, User, Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
 import { doc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { techStack as localTags } from '../data/portfolioData';
+import { db, firebaseEnabled } from '../lib/firebase';
 import { sanitizeSvg } from '../lib/sanitize';
 import { isVideoFile, getStackIcon, getTechColor } from '../utils/projectUtils';
 import { ProjectData as Project, ContributorData as Contributor, TagData as TagItem } from '../types';
@@ -456,6 +457,59 @@ const ProjectMediaImage = ({ src }: { src: string }) => {
     );
 };
 
+const ProjectMediaPlaceholder = ({ project }: { project: Project }) => {
+    const accent = getTechColor(project.stack?.[0] || project.tags?.[0]?.name || 'Flutter');
+
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                inset: 0,
+                background: `linear-gradient(145deg, ${accent} 0%, rgba(15, 23, 42, 0.96) 58%, rgba(2, 6, 23, 1) 100%)`
+            }}
+        >
+            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top right, rgba(255,255,255,0.24), transparent 32%), radial-gradient(circle at bottom left, rgba(255,255,255,0.12), transparent 30%)' }} />
+            <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '28px', color: '#fff' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                    {(project.platforms || []).map((platform) => (
+                        <span
+                            key={platform}
+                            style={{
+                                padding: '8px 12px',
+                                borderRadius: '999px',
+                                border: '1px solid rgba(255,255,255,0.22)',
+                                background: 'rgba(255,255,255,0.1)',
+                                fontSize: '0.7rem',
+                                fontWeight: 900,
+                                letterSpacing: '0.16em',
+                                textTransform: 'uppercase'
+                            }}
+                        >
+                            {platform}
+                        </span>
+                    ))}
+                </div>
+
+                <div>
+                    {project.role && (
+                        <div style={{ fontSize: '0.72rem', fontWeight: 900, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.68)', marginBottom: '10px' }}>
+                            {project.role}
+                        </div>
+                    )}
+                    <div style={{ fontSize: 'clamp(2rem, 6vw, 4.75rem)', fontWeight: 950, letterSpacing: '-0.05em', lineHeight: 1 }}>
+                        {project.title || project.name}
+                    </div>
+                    {project.category && (
+                        <div style={{ marginTop: '12px', fontSize: '1rem', color: 'rgba(255,255,255,0.76)' }}>
+                            {project.category}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const MProjectView = ({ project: initialProject, onClose, onContributorClick }: MProjectViewProps) => {
     const [project, setProject] = useState<Project>(initialProject);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -463,7 +517,9 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
     const [isHovered, setIsHovered] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
-    const [availableTags, setAvailableTags] = useState<TagItem[]>([]);
+    const [availableTags, setAvailableTags] = useState<TagItem[]>(localTags);
+    const firestore = db;
+    const canUseFirebase = firebaseEnabled && !!firestore;
 
     const sortedMedia = React.useMemo(() => {
         return [...(project.images || [])].sort((a, b) => {
@@ -504,9 +560,9 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
     };
 
     const handleGithubClick = async () => {
-        if (!project.repoLink || !project.id) return;
+        if (!canUseFirebase || !firestore || !project.repoLink || !project.id) return;
         try {
-            const projectRef = doc(db, 'Projects', project.id.toString());
+            const projectRef = doc(firestore, 'Projects', project.id.toString());
             await updateDoc(projectRef, { "Views.Github": increment(1) });
         } catch (err) {
             console.warn("Could not increment github views:", err);
@@ -514,9 +570,9 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
     };
 
     const handleLiveClick = async () => {
-        if ((!project.liveLink && !project.demoLink) || !project.id) return;
+        if (!canUseFirebase || !firestore || (!project.liveLink && !project.demoLink) || !project.id) return;
         try {
-            const projectRef = doc(db, 'Projects', project.id.toString());
+            const projectRef = doc(firestore, 'Projects', project.id.toString());
             await updateDoc(projectRef, { "Views.Live": increment(1) });
         } catch (err) {
             console.warn("Could not increment live views:", err);
@@ -524,9 +580,9 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
     };
 
     const handleDownloadClick = async () => {
-        if (!project.downloadLink || !project.id) return;
+        if (!canUseFirebase || !firestore || !project.downloadLink || !project.id) return;
         try {
-            const projectRef = doc(db, 'Projects', project.id.toString());
+            const projectRef = doc(firestore, 'Projects', project.id.toString());
             await updateDoc(projectRef, { "Views.Download": increment(1) });
         } catch (err) {
             console.warn("Could not increment download views:", err);
@@ -565,7 +621,12 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
 
     // Fetch Global Tags for Icons/Colors
     useEffect(() => {
-        const unsub = onSnapshot(doc(db, 'Tags', 'Tags'), (docSnap) => {
+        if (!canUseFirebase || !firestore) {
+            setAvailableTags(localTags);
+            return;
+        }
+
+        const unsub = onSnapshot(doc(firestore, 'Tags', 'Tags'), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data() as Record<string, { Name?: string; Color?: string; Icon?: string }>;
                 const loaded = Object.entries(data).map(([id, val]): TagItem => ({
@@ -578,7 +639,7 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
             }
         });
         return () => unsub();
-    }, []);
+    }, [canUseFirebase, firestore]);
 
     // Ref to track latest availableTags without causing effect re-runs
     const availableTagsRef = useRef<TagItem[]>(availableTags);
@@ -588,9 +649,9 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
 
     // Sync with Firestore for real-time views
     useEffect(() => {
-        if (!project.id) return;
+        if (!canUseFirebase || !firestore || !project.id) return;
 
-        const projectRef = doc(db, 'Projects', String(project.id));
+        const projectRef = doc(firestore, 'Projects', String(project.id));
 
         const resolveTag = (t: string | { name?: string; Name?: string; color?: string; Color?: string; iconSvg?: string; Icon?: string } | null | undefined) => {
             if (!t) return { name: 'Unknown', color: '#60a5fa', iconSvg: '' };
@@ -653,7 +714,7 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
         );
 
         return () => unsub();
-    }, [project.id, project.name, project.title]);
+    }, [canUseFirebase, firestore, project.id, project.name, project.title]);
 
 
     useEffect(() => {
@@ -773,24 +834,28 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
                                 }}
                             >
                                 <div style={{ position: 'absolute', inset: 0 }}>
-                                    {sortedMedia.map((media, i) => (
-                                        <div key={i} style={{
-                                            position: 'absolute', inset: 0,
-                                            opacity: i === currentImageIndex ? 1 : 0,
-                                            transform: i === currentImageIndex ? 'scale(1)' : 'scale(1.08)',
-                                            transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                                            pointerEvents: i === currentImageIndex ? 'auto' : 'none',
-                                            zIndex: i === currentImageIndex
-                                                ? (isVideoFile(media) ? 3 : 1)
-                                                : 0
-                                        }}>
-                                            {isVideoFile(media) ? (
-                                                <VideoPlayer src={media} isActive={i === currentImageIndex} isMobile={isMobile} />
-                                            ) : (
-                                                <ProjectMediaImage src={media} />
-                                            )}
-                                        </div>
-                                    ))}
+                                    {sortedMedia.length > 0 ? (
+                                        sortedMedia.map((media, i) => (
+                                            <div key={i} style={{
+                                                position: 'absolute', inset: 0,
+                                                opacity: i === currentImageIndex ? 1 : 0,
+                                                transform: i === currentImageIndex ? 'scale(1)' : 'scale(1.08)',
+                                                transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                                                pointerEvents: i === currentImageIndex ? 'auto' : 'none',
+                                                zIndex: i === currentImageIndex
+                                                    ? (isVideoFile(media) ? 3 : 1)
+                                                    : 0
+                                            }}>
+                                                {isVideoFile(media) ? (
+                                                    <VideoPlayer src={media} isActive={i === currentImageIndex} isMobile={isMobile} />
+                                                ) : (
+                                                    <ProjectMediaImage src={media} />
+                                                )}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <ProjectMediaPlaceholder project={project} />
+                                    )}
                                 </div>
 
                                 {/* Manual Nav Controls */}
@@ -879,6 +944,40 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
                                     fontWeight: 400, borderLeft: '3px solid #60a5fa', paddingLeft: '24px'
                                 }}>{displayFullDescription}</p>
                             </GlassPanel>
+
+                            {((project.contextHighlights && project.contextHighlights.length > 0) || (project.contributionHighlights && project.contributionHighlights.length > 0)) && (
+                                <GlassPanel isDark={isDark}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '28px' }}>
+                                        {project.contextHighlights && project.contextHighlights.length > 0 && (
+                                            <div>
+                                                <h3 style={{ margin: '0 0 18px 0', fontSize: '0.8rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#60a5fa' }}>Project Context</h3>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                                    {project.contextHighlights.map((item) => (
+                                                        <div key={item} style={{ display: 'flex', gap: '12px', color: 'rgba(255,255,255,0.74)', lineHeight: 1.7 }}>
+                                                            <div style={{ width: '8px', height: '8px', borderRadius: '999px', background: '#60a5fa', marginTop: '10px', flexShrink: 0 }} />
+                                                            <span>{item}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {project.contributionHighlights && project.contributionHighlights.length > 0 && (
+                                            <div>
+                                                <h3 style={{ margin: '0 0 18px 0', fontSize: '0.8rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#60a5fa' }}>Key Contributions</h3>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                                    {project.contributionHighlights.map((item) => (
+                                                        <div key={item} style={{ display: 'flex', gap: '12px', color: 'rgba(255,255,255,0.74)', lineHeight: 1.7 }}>
+                                                            <div style={{ width: '8px', height: '8px', borderRadius: '999px', background: '#60a5fa', marginTop: '10px', flexShrink: 0 }} />
+                                                            <span>{item}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </GlassPanel>
+                            )}
 
                             <GlassPanel isDark={isDark}>
                                 <h3 style={{ margin: '0 0 35px 0', fontSize: '0.85rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.25em', color: '#60a5fa' }}>Technological Blueprint</h3>

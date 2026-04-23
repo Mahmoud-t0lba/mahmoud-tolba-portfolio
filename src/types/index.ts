@@ -3,6 +3,7 @@ export interface TagData {
     name: string;
     color?: string;
     iconSvg?: string;
+    skillIcon?: string;
 }
 
 export interface TagFormData extends TagData {
@@ -29,12 +30,17 @@ export interface ProjectData {
     id?: string | number;
     title?: string;
     name: string;
+    role?: string;
+    category?: string;
+    platforms?: string[];
     description: string;
     fullDescription?: string;
     images: string[];
     stack?: string[];
     tags: TagData[];
     contributors: ContributorData[];
+    contextHighlights?: string[];
+    contributionHighlights?: string[];
     repoLink: string;
     liveLink: string;
     demoLink?: string;

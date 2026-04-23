@@ -7,7 +7,8 @@ import DLinks from './dashboard/D-Links';
 import DSettings from './dashboard/D-Settings';
 import DCanary from './dashboard/D-Canary';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { personalInfo } from '../data/portfolioData';
+import { db, firebaseEnabled } from '../lib/firebase';
 
 // The parameter name in the function type would trigger `no-unused-vars` in some
 // ESLint configurations, so we suppress that rule for the following type alias.
@@ -25,10 +26,11 @@ const Dashboard = ({ onNavigate }: DashboardProps) => {
 
     // Responsive breakpoints
     const isExtraSmall = windowWidth < 400;  // 320px - 399px
-    const isSmall = windowWidth < 640;        // 400px - 639px
+    const isSmall = windowWidth < 640;       // 400px - 639px
     const isMobile = windowWidth < 768;       // 640px - 767px
 
     useEffect(() => {
+        if (!firebaseEnabled || !db) return;
         const unsub = onSnapshot(doc(db, 'Settings', 'Account'), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
@@ -92,12 +94,31 @@ const Dashboard = ({ onNavigate }: DashboardProps) => {
         { id: 'tags', label: 'Tags', icon: Tag },
         { id: 'views', label: 'Views', icon: Eye },
         { id: 'settings', label: 'Settings', icon: Settings },
-        { id: 'canary', label: 'Canary', icon: Bird },
+        { id: 'canary', label: 'Inbox', icon: Bird },
     ];
 
     const sidebarWidth = isExtraSmall ? '56px' : (isMobile ? '72px' : '260px');
     const iconSize = isExtraSmall ? 18 : 20;
     const avatarSize = isExtraSmall ? '28px' : '32px';
+
+    if (!firebaseEnabled || !db) {
+        return (
+            <div className="w-full h-screen flex items-center justify-center p-6">
+                <div className="glass-panel max-w-xl p-8 text-center space-y-4">
+                    <h1 className="text-3xl font-black text-primary">Dashboard Needs Firebase</h1>
+                    <p className="text-sec leading-relaxed">
+                        The public portfolio is ready, but the admin dashboard needs your Firebase configuration before messages, analytics, meeting booking, and the private panel can sync live.
+                    </p>
+                    <p className="text-sm text-muted">
+                        Add your `NEXT_PUBLIC_FIREBASE_*` keys or log in to Firebase from this machine, then we can finish the dashboard connection for {personalInfo.name}.
+                    </p>
+                    <button onClick={() => onNavigate?.('home')} className="btn btn-primary">
+                        Back To Portfolio
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div
@@ -149,7 +170,7 @@ const Dashboard = ({ onNavigate }: DashboardProps) => {
                     </div>
                     {!isMobile && (
                         <span className="text-xl font-bold text-primary font-inter">
-                            Revil
+                            {personalInfo.lastName}
                         </span>
                     )}
                 </div>

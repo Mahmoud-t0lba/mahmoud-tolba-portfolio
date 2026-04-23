@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { availabilityInfo, personalInfo } from '../data/portfolioData';
 import anime from 'animejs';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { db, firebaseEnabled } from '../lib/firebase';
 import { Plus, Briefcase } from 'lucide-react';
 
 // 1x1 transparent GIF to prevent empty src errors and allow onLoad to trigger properly
@@ -136,13 +137,21 @@ interface AvailabilityData {
     'Projects Being Handled'?: Record<string, HeroProject>;
 }
 
+const fallbackAvailabilityData: AvailabilityData = {
+    'Current Availability': `${availabilityInfo.percent}%`,
+    'Current Time': availabilityInfo.currentTime,
+    'Projects Being Handled': Object.fromEntries(
+        availabilityInfo.projectsBeingHandled.map((project, index) => [`${index + 1}`, project])
+    )
+};
+
 // Available Status Badge Component
 const AvailableBadge = ({ isDark, entryDelay = 1200, isReady = true }: { isDark: boolean; entryDelay?: number; isReady?: boolean }) => {
     const badgeRef = useRef<HTMLDivElement>(null);
     const pulseRef = useRef<HTMLDivElement>(null);
     const triggerRef = useRef<HTMLDivElement>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
-    const [availData, setAvailData] = useState<AvailabilityData | null>(null);
+    const [availData, setAvailData] = useState<AvailabilityData | null>(fallbackAvailabilityData);
     const [tooltipVisible, setTooltipVisible] = useState(false);
     const [tooltipMounted, setTooltipMounted] = useState(false);
     const [tooltipPos, setTooltipPos] = useState<{ top: number | 'auto'; bottom: number | 'auto'; left: number; width: number; arrowLeft: number; flipBelow: boolean }>({ top: 0, bottom: 'auto', left: 0, width: 320, arrowLeft: 160, flipBelow: false });
@@ -226,6 +235,8 @@ const AvailableBadge = ({ isDark, entryDelay = 1200, isReady = true }: { isDark:
     };
 
     useEffect(() => {
+        if (!firebaseEnabled || !db) return;
+
         const unsubscribe = onSnapshot(doc(db, 'Settings', 'Availability'), (snap) => {
             if (snap.exists()) {
                 setAvailData(snap.data());
@@ -277,9 +288,9 @@ const AvailableBadge = ({ isDark, entryDelay = 1200, isReady = true }: { isDark:
         if (unmountTimeoutRef.current) clearTimeout(unmountTimeoutRef.current);
     }, []);
 
-    const availabilityStr = availData?.['Current Availability'] || '100%';
-    const availabilityPercent = parseInt(availabilityStr);
-    const currentTime = availData?.['Current Time'] || 'UTC+02:00';
+    const availabilityStr = availData?.['Current Availability'] || `${availabilityInfo.percent}%`;
+    const availabilityPercent = Number.parseInt(availabilityStr, 10) || availabilityInfo.percent;
+    const currentTime = availData?.['Current Time'] || availabilityInfo.currentTime;
     const projectsMap = availData?.['Projects Being Handled'] || {};
     const projects = Object.values(projectsMap);
 
@@ -458,42 +469,21 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [isDark, setIsDark] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-    const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
-    const [profileName, setProfileName] = useState<string>('Tem Revil');
-    const [profileTitle, setProfileTitle] = useState<string>('a Front-End');
     const hasNotifiedLoaded = useRef(false);
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(doc(db, 'Settings', 'Account'),
-            (docSnapshot) => {
-                if (docSnapshot.exists()) {
-                    const data = docSnapshot.data();
-                    if (data.heroImageUrl) setHeroImageUrl(data.heroImageUrl);
-                    if (data.name && data.name !== profileName) setProfileName(data.name);
-                    if (data.title && data.title !== profileTitle) setProfileTitle(data.title);
-                }
+        // Initial data is already available from personalInfo
+        if (onLoaded && !hasNotifiedLoaded.current) {
+            hasNotifiedLoaded.current = true;
+            onLoaded();
+        }
+    }, [onLoaded]);
 
-                // Notify parent that initial data is ready
-                if (onLoaded && !hasNotifiedLoaded.current) {
-                    hasNotifiedLoaded.current = true;
-                    onLoaded();
-                }
-            },
-            (error) => {
-                const status = navigator.onLine ? "Service Blocked (ISP/Firewall)" : "Offline";
-                console.warn(`[Connection] Hero sync: ${status}. Check diagnostic in lib/firebase.ts`, error);
-
-                // Even on error, we should probably allow the app to show something
-                if (onLoaded && !hasNotifiedLoaded.current) {
-                    hasNotifiedLoaded.current = true;
-                    onLoaded();
-                }
-            }
-        );
-        return () => unsubscribe();
-    }, [profileName, profileTitle, onLoaded]);
+    const profileName = personalInfo.name;
+    const profileTitle = personalInfo.title;
+    const heroImageUrl = personalInfo.heroImageUrl; 
 
     useEffect(() => {
         const checkTheme = () => setIsDark(document.documentElement.classList.contains('dark'));
@@ -687,8 +677,12 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
                             </div>
 
                             {/* Numbers */}
-                            <div className="absolute -left-8 top-1/2 -rotate-90 font-bold text-xl hidden sm:block text-sec">4.0</div>
-                            <div className="absolute bottom-[-30px] left-1/2 -translate-x-1/2 font-bold text-xl text-sec">5.0</div>
+                            <div className="absolute -left-10 top-1/2 -rotate-90 font-bold text-xl hidden sm:block text-sec tracking-wider uppercase">
+                                {personalInfo.heroSideLabel}
+                            </div>
+                            <div className="absolute bottom-[-30px] left-1/2 -translate-x-1/2 font-bold text-lg text-sec tracking-wider uppercase">
+                                {personalInfo.heroBottomLabel}
+                            </div>
                         </div>
                     </div>
                 </div>

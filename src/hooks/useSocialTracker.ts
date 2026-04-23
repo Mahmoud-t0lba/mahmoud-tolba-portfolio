@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { doc, updateDoc, runTransaction } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { db, firebaseEnabled } from '../lib/firebase';
 
 // Convert milliseconds to seconds
 const msToSeconds = (ms: number) => Math.round(ms / 1000 * 10) / 10; // Round to 1 decimal
@@ -20,16 +20,21 @@ const formatTimestamp = (ms: number) => {
 
 export const useSocialTracker = () => {
     const [pendingVisit, setPendingVisit] = useState<{ linkName: string; clickId: string; clickTime: number } | null>(null);
+    const firestore = db;
 
     const trackClick = useCallback(async (linkName: string) => {
+            if (!firebaseEnabled || !firestore) {
+                return;
+            }
+
             const clickTime = Date.now();
             let clickKey = '';
 
             try {
-                const socialRef = doc(db, 'Settings', 'Views', 'Socials', linkName);
+                const socialRef = doc(firestore, 'Settings', 'Views', 'Socials', linkName);
 
                 // Use transaction to avoid lost-updates if two users click at exact same time
-                await runTransaction(db, async (transaction) => {
+                await runTransaction(firestore, async (transaction) => {
                     const socialSnap = await transaction.get(socialRef);
                     let nextClickNum = 1;
 
@@ -66,10 +71,11 @@ export const useSocialTracker = () => {
         } catch (error) {
             console.error('Error tracking social click:', error);
         }
-    }, []);
+    }, [firestore]);
 
     useEffect(() => {
         const handleVisibilityChange = async () => {
+            if (!firebaseEnabled || !firestore) return;
             if (document.visibilityState === 'visible' && pendingVisit) {
                 const endTime = Date.now();
                 const durationMs = endTime - pendingVisit.clickTime;
@@ -77,7 +83,7 @@ export const useSocialTracker = () => {
 
                 try {
                     // Update duration for this click as a string
-                    const socialRef = doc(db, 'Settings', 'Views', 'Socials', pendingVisit.linkName);
+                    const socialRef = doc(firestore, 'Settings', 'Views', 'Socials', pendingVisit.linkName);
                     await updateDoc(socialRef, {
                         [`${pendingVisit.clickId}.duration`]: durationSec.toString()
                     });
@@ -99,7 +105,7 @@ export const useSocialTracker = () => {
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [pendingVisit]);
+    }, [firestore, pendingVisit]);
 
     return { trackClick };
 };

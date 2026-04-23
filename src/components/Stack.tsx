@@ -1,9 +1,8 @@
 import { createElement, useEffect, useRef, useState, useMemo } from 'react';
 import anime from 'animejs';
-import { db } from '../lib/firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
 import { Github, Instagram, Linkedin, Twitter, Facebook, Mail, Link as LinkIcon, Twitch, Youtube, Code } from 'lucide-react';
 import { useSocialTracker } from '../hooks/useSocialTracker';
+import { techStack, personalInfo } from '../data/portfolioData';
 
 interface StackItemProps {
     icon: string;
@@ -29,8 +28,6 @@ const StackItem = ({ icon, name, iconSize, delay }: StackItemProps) => {
     }, [delay]);
 
     const showFallback = !icon || imgError;
-
-    // Calculate min-height based on icon size
     const minHeight = Math.max(iconSize + 20, 60);
     const fallbackSize = Math.max(iconSize * 0.8, 40);
 
@@ -68,7 +65,6 @@ const StackItem = ({ icon, name, iconSize, delay }: StackItemProps) => {
     );
 };
 
-// Icon mapping helper kept at module scope to avoid creating components during render
 const getIcon = (name: string) => {
     const lower = name.toLowerCase();
     if (lower.includes('github')) return Github;
@@ -116,8 +112,6 @@ const SocialIcon = ({ name, url, delay }: { name: string; url: string; delay: nu
             className={`relative flex items-center justify-center p-3 rounded-xl transition-all duration-300 ${isHovered ? 'bg-zinc-100 scale-110' : ''}`}
         >
             {iconElement}
-
-            {/* Tooltip */}
             <span 
                 className="absolute md:right-full md:mr-3 md:top-1/2 md:-translate-y-1/2 md:bottom-auto md:left-auto md:translate-x-0 bottom-full mb-3 md:mb-0 left-1/2 -translate-x-1/2 md:left-auto px-3 py-1.5 rounded-lg text-xs font-bold transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-xl"
                 style={{ 
@@ -130,7 +124,6 @@ const SocialIcon = ({ name, url, delay }: { name: string; url: string; delay: nu
             </span>
         </a>
     );
-
 };
 
 const Stack = () => {
@@ -139,108 +132,59 @@ const Stack = () => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     type StackData = { icon?: string; name?: string };
-    const [stackItems, setStackItems] = useState<StackData[]>([]);
-    const [socialLinks, setSocialLinks] = useState<{ name: string, url: string }[]>([
-        { name: 'Github', url: 'https://github.com/TemRevil' },
-        { name: 'LinkedIn', url: 'https://linkedin.com/in/temrevil' },
-        { name: 'Instagram', url: 'https://instagram.com/temrevil' }
-    ]);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
-    // Track window width for responsive behavior
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Calculate dynamic grid properties based on screen width
-    // Grid rules: ALWAYS 5 columns on desktop, 3 on tablet, 2 on mobile
     const gridConfig = useMemo(() => {
         const isMobile = windowWidth < 640;
         const isTablet = windowWidth >= 640 && windowWidth < 1024;
-
         let columns: number;
         let iconSize: number;
-        let paddingTotal: number; // Total horizontal padding per cell (left + right)
+        let paddingTotal: number;
 
         if (isMobile) {
-            columns = windowWidth < 360 ? 3 : 3;
-            if (windowWidth < 400) {
-                iconSize = 45;
-                paddingTotal = 12;
-            } else {
-                iconSize = 65;
-                paddingTotal = 16;
-            }
+            columns = 3;
+            iconSize = windowWidth < 400 ? 45 : 65;
+            paddingTotal = windowWidth < 400 ? 12 : 16;
         } else if (isTablet) {
             columns = 4;
             iconSize = windowWidth < 800 ? 80 : 100;
             paddingTotal = 20;
         } else {
-            // Desktop: ALWAYS 5 columns
             columns = 5;
-
             if (windowWidth < 1100) iconSize = 90;
             else if (windowWidth < 1280) iconSize = 100;
             else if (windowWidth < 1440) iconSize = 110;
             else iconSize = 120;
-
             paddingTotal = iconSize > 120 ? 40 : 24;
         }
 
-        // Exact width of one cell in pixels (used for desktop sizing)
         const cellWidth = iconSize + paddingTotal;
-
-        // Generate marker positions for columns (excluding edges)
         const markerPositions: number[] = [];
         for (let i = 1; i < columns; i++) {
             markerPositions.push((i / columns) * 100);
         }
-
         return { columns, iconSize, markerPositions, cellWidth, isMobile, isTablet };
     }, [windowWidth]);
 
-    // Fetch Stack Items
-    useEffect(() => {
-        const unsubStack = onSnapshot(doc(db, 'Settings', 'Tech Stack'), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
+    const stackItems = useMemo<StackData[]>(() => (
+        techStack.map((item) => ({
+            name: item.name,
+            icon: item.skillIcon ? `https://skillicons.dev/icons?i=${item.skillIcon}` : ''
+        }))
+    ), []);
 
-                const items = Object.entries(data)
-                    .sort(([a], [b]) => Number(a) - Number(b))
-                    .map(([, item]: [string, unknown]) => {
-                        const it = item as Record<string, unknown>;
-                        return {
-                            icon: (it.Icon ?? it.icon) as string | undefined,
-                            name: (it.Name ?? it.name) as string | undefined
-                        };
-                    });
-                setStackItems(items);
-            }
-        }, (error) => {
-            console.error('[Stack] Firestore error:', error);
-        });
-
-        // Fetch Social Links
-        const unsubAccount = onSnapshot(doc(db, 'Settings', 'Account'), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (data && data['Social Links']) {
-                    const links = Object.entries(data['Social Links']).map(([name, url]) => ({
-                        name,
-                        url: url as string
-                    }));
-                    setSocialLinks(links);
-                }
-            }
-        });
-
-        return () => {
-            unsubStack();
-            unsubAccount();
-        };
-    }, []);
+    const socialLinks = useMemo(() => (
+        Object.entries(personalInfo.socialLinks).map(([name, url]) => ({
+            name: name.charAt(0).toUpperCase() + name.slice(1),
+            url
+        }))
+    ), []);
 
     useEffect(() => {
         anime({
@@ -259,27 +203,21 @@ const Stack = () => {
             delay: 100,
             easing: 'easeOutExpo'
         });
-
-
     }, []);
 
-    // Calculate which items are in the last row for border styling
     const getItemClasses = (index: number) => {
         const { columns } = gridConfig;
         const totalItems = stackItems.length;
         const totalRows = Math.ceil(totalItems / columns);
         const currentRow = Math.floor(index / columns);
-
         const isLastRow = currentRow === totalRows - 1;
         const isLastCol = (index + 1) % columns === 0;
-
         return { isLastRow, isLastCol };
     };
 
     return (
         <div className="min-h-screen w-full overflow-x-hidden flex flex-col items-center justify-center bg-primary transition-slow pt-20 pb-40 page-padding">
             <div className="max-w-7xl w-full mx-auto relative z-10">
-                {/* Header Section */}
                 <div className="mb-14">
                     <div
                         ref={handwritingRef}
@@ -304,13 +242,6 @@ const Stack = () => {
                     ref={containerRef}
                     className="flex flex-col md:flex-row items-center md:items-start justify-between w-full bg-transparent px-6 sm:px-12 lg:px-20 py-4"
                 >
-
-                    {/* Tech Stack Grid Wrapper */}
-                    {/* 
-                        FIX: We explicitly set the width of this container on desktop.
-                        This ensures the 'relative' container matches the grid size exactly,
-                        so the corner and edge markers (absolute positioned) align perfectly with the grid lines.
-                    */}
                     <div
                         className="relative shrink-0"
                         style={{
@@ -319,14 +250,11 @@ const Stack = () => {
                                 : `${gridConfig.columns * gridConfig.cellWidth}px`
                         }}
                     >
-
-                        {/* Corner Markers */}
                         <div className="marker marker-corner-tl"></div>
                         <div className="marker marker-corner-tr"></div>
                         <div className="marker marker-corner-bl"></div>
                         <div className="marker marker-corner-br"></div>
 
-                        {/* Dynamic Edge Markers - Top */}
                         {gridConfig.markerPositions.map((pos, idx) => (
                             <div
                                 key={`top-${idx}`}
@@ -340,7 +268,6 @@ const Stack = () => {
                             />
                         ))}
 
-                        {/* Dynamic Edge Markers - Bottom */}
                         {gridConfig.markerPositions.map((pos, idx) => (
                             <div
                                 key={`bottom-${idx}`}
@@ -354,7 +281,6 @@ const Stack = () => {
                             />
                         ))}
 
-                        {/* Dynamic Grid */}
                         <div
                             className="dynamic-stack-grid"
                             style={{
@@ -366,7 +292,7 @@ const Stack = () => {
                                 border: '1px dashed var(--text-muted)',
                                 position: 'relative',
                                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                                width: '100%' // Fill the explicit parent width
+                                width: '100%'
                             }}
                         >
                             {stackItems.map((item, index) => {
@@ -394,11 +320,9 @@ const Stack = () => {
                         </div>
                     </div>
 
-                    {/* Social Links - Below grid on mobile, sidebar on desktop */}
                     {socialLinks.length > 0 && (
                         <div className="flex flex-row md:flex-col items-center justify-center md:justify-start gap-3 md:gap-4 mt-8 md:mt-0 w-auto md:w-12 shrink-0 relative z-30">
                             <div className="hidden md:block w-px h-12 bg-gradient-to-b from-gray-400/50 to-transparent mb-2"></div>
-
                             {socialLinks.map((link, index) => (
                                 <SocialIcon
                                     key={link.name}
@@ -407,7 +331,6 @@ const Stack = () => {
                                     delay={800 + (index * 100)}
                                 />
                             ))}
-
                             <div className="hidden md:block w-px h-12 bg-gradient-to-t from-gray-400/50 to-transparent mt-2"></div>
                         </div>
                     )}

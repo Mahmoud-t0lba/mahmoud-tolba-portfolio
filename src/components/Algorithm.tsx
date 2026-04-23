@@ -18,6 +18,7 @@ interface ProjectStats {
 
 export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: AlgorithmProps) => {
     const { alert, showAlert, hideAlert } = useSafeAlert(4000);
+    const firestore = db!;
 
     // Session Start
     const sessionStart = useRef(0);
@@ -41,7 +42,7 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
     useEffect(() => {
         sessionStart.current = Date.now();
         lastSectionCheck.current = Date.now();
-    }, []);
+    }, [firestore]);
 
     // Contact Open Tracking
     const prevContactOpen = useRef(isContactOpen);
@@ -75,7 +76,7 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
         }
 
         return () => clearInterval(interval);
-    }, [currentSection]);
+    }, [currentSection, firestore]);
 
     // Track Contact Opens
     useEffect(() => {
@@ -89,8 +90,8 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
     const incrementDailyStat = useCallback(async (field: 'projectViews' | 'socialClicks') => {
         try {
             const today = new Date().toISOString().split('T')[0];
-            const dailyRef = doc(db, 'Settings', 'Views', 'Analysis', 'Daily');
-            const mainRef = doc(db, 'Settings', 'Views', 'Analysis', 'Main');
+            const dailyRef = doc(firestore, 'Settings', 'Views', 'Analysis', 'Daily');
+            const mainRef = doc(firestore, 'Settings', 'Views', 'Analysis', 'Main');
 
             // Map the field to the corresponding Main document field
             const mainField = field === 'projectViews' ? 'Total Project Views' : 'Total Social Clicks';
@@ -110,7 +111,7 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
         } catch (error) {
             console.error(`Error incrementing daily ${field}:`, error);
         }
-    }, []);
+    }, [firestore]);
 
     // 2. Listen for Project Events & Social Events
     useEffect(() => {
@@ -170,8 +171,8 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
             hasTrackedVisit.current = true;
 
             try {
-                const mainRef = doc(db, 'Settings', 'Views', 'Analysis', 'Main');
-                const dailyRef = doc(db, 'Settings', 'Views', 'Analysis', 'Daily');
+                const mainRef = doc(firestore, 'Settings', 'Views', 'Analysis', 'Main');
+                const dailyRef = doc(firestore, 'Settings', 'Views', 'Analysis', 'Daily');
                 const today = new Date().toISOString().split('T')[0];
 
                 const hasVisitedToday = localStorage.getItem(`revil_visitor_today_${today}`);
@@ -222,7 +223,7 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
         };
 
         trackGlobalVisit();
-    }, [currentSection]);
+    }, [currentSection, firestore]);
 
     // 2.6 Initial Link Recording & Verification
     const hasRecordedRef = useRef(false);
@@ -240,7 +241,7 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
 
             try {
                 // Get all links from Settings/Views/Links collection
-                const linksSnap = await getDocs(collection(db, 'Settings', 'Views', 'Links'));
+                const linksSnap = await getDocs(collection(firestore, 'Settings', 'Views', 'Links'));
                 let foundId: string | null = null;
                 let existingRec = '';
                 for (const linkDoc of linksSnap.docs) {
@@ -273,7 +274,7 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
                     }
 
                     // Increment view count in Settings/Views/Links/{foundId}
-                    const docRef = doc(db, 'Settings', 'Views', 'Links', foundId);
+                    const docRef = doc(firestore, 'Settings', 'Views', 'Links', foundId);
                     await updateDoc(docRef, {
                         Views: increment(1)
                     });
@@ -292,7 +293,7 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
         };
 
         recordLink();
-    }, [onNavigate, showAlert]);
+    }, [firestore, onNavigate, showAlert]);
 
     // Only Sync at the very end — using keepalive fetch for reliability
     useEffect(() => {

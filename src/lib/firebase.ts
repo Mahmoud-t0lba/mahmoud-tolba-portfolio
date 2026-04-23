@@ -1,12 +1,13 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, type FirebaseApp } from 'firebase/app';
 import {
     initializeFirestore,
     persistentLocalCache,
-    persistentMultipleTabManager
+    persistentMultipleTabManager,
+    type Firestore
 } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
-import { getFunctions } from 'firebase/functions';
+import { getAuth, type Auth } from 'firebase/auth';
+import { getStorage, type FirebaseStorage } from 'firebase/storage';
+import { getFunctions, type Functions } from 'firebase/functions';
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -18,28 +19,45 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const requiredKeys = [
+    firebaseConfig.apiKey,
+    firebaseConfig.authDomain,
+    firebaseConfig.projectId,
+    firebaseConfig.storageBucket,
+    firebaseConfig.messagingSenderId,
+    firebaseConfig.appId
+];
 
-// Initialize Firestore with modern multi-tab persistence settings
-export const db = initializeFirestore(app, {
-    localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager()
-    })
-});
+export const firebaseEnabled = requiredKeys.every(Boolean);
 
-export const auth = getAuth(app);
-export const storage = getStorage(app);
-export const functions = getFunctions(app);
+let app = null as unknown as FirebaseApp;
+let db = null as unknown as Firestore;
+let auth = null as unknown as Auth;
+let storage = null as unknown as FirebaseStorage;
+let functions = null as unknown as Functions;
 
-// Simple online/offline logging (optional, silent on success)
-if (typeof window !== 'undefined') {
+if (firebaseEnabled) {
+    app = initializeApp(firebaseConfig);
+    db = initializeFirestore(app, {
+        localCache: persistentLocalCache({
+            tabManager: persistentMultipleTabManager()
+        })
+    });
+    auth = getAuth(app);
+    storage = getStorage(app);
+    functions = getFunctions(app);
+} else if (typeof window !== 'undefined') {
+    console.info('[Firebase] Running in local-only mode. Add NEXT_PUBLIC_FIREBASE_* variables to enable dashboard, forms, and analytics.');
+}
+
+if (typeof window !== 'undefined' && firebaseEnabled) {
     window.addEventListener('offline', () => {
-        console.warn("%c[Firebase] Network connectivity lost. Switching to offline mode.", "color: #ff9800; font-weight: bold;");
+        console.warn('%c[Firebase] Network connectivity lost. Switching to offline mode.', 'color: #ff9800; font-weight: bold;');
     });
     window.addEventListener('online', () => {
-        console.info("%c[Firebase] Network connectivity restored.", "color: #4caf50; font-weight: bold;");
+        console.info('%c[Firebase] Network connectivity restored.', 'color: #4caf50; font-weight: bold;');
     });
 }
 
+export { app, db, auth, storage, functions };
 export default app;

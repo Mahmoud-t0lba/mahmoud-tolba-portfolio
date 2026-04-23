@@ -9,6 +9,7 @@ import {
     type Target,
     type TargetAndTransition
 } from 'motion/react';
+import { personalInfo } from '../../data/portfolioData';
 
 function cn(...classes: (string | undefined | null | boolean)[]): string {
     return classes.filter(Boolean).join(' ');
@@ -266,7 +267,7 @@ const Loader: React.FC<LoaderProps> = ({ isOpen = true, isFullScreen = false }) 
                                     transition={{ type: "spring", damping: 30, stiffness: 400 }}
                                     className="text-white text-4xl sm:text-5xl md:text-6xl font-black tracking-tight"
                                 >
-                                    Revil
+                                    {personalInfo.lastName}
                                 </motion.span>
                                 <RotatingText
                                     texts={['INIT', 'DATA', 'CORE', 'PROJECTS', 'STACK']}

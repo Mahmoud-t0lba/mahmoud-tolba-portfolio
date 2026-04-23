@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User } from 'lucide-react';
-import { getAuth, GoogleAuthProvider, signInWithPopup as authSignInWithPopup, deleteUser, getAdditionalUserInfo } from 'firebase/auth';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { personalInfo } from '../data/portfolioData';
+import { GoogleAuthProvider, signInWithPopup as authSignInWithPopup, deleteUser, getAdditionalUserInfo } from 'firebase/auth';
+import { auth, firebaseEnabled } from '../lib/firebase';
 
 type SecretNavigate = (section: 'home' | 'stack' | 'projects' | 'secret' | 'dashboard' | 'view_link') => void;
 
@@ -16,10 +16,9 @@ const SecretPage = ({ onNavigate }: SecretPageProps) => {
     const [error, setError] = useState('');
     const [profile, setProfile] = useState<{ imageUrl?: string; name?: string; title?: string }>({
         imageUrl: '',
-        name: 'Action Center',
-        title: 'Authorized Revil Only'
+        name: 'Private Access',
+        title: 'Authorized Mahmoud Only'
     });
-    const auth = getAuth();
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
 
@@ -32,17 +31,10 @@ const SecretPage = ({ onNavigate }: SecretPageProps) => {
     }, []);
 
     useEffect(() => {
-        const unsub = onSnapshot(doc(db, 'Settings', 'Account'), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                setProfile({
-                    imageUrl: data.imageUrl || '',
-                    name: data.name || 'Action Center',
-                    title: data.title || 'Authorized Revil Only'
-                });
-            }
+        setProfile({
+            name: `${personalInfo.firstName}'s Panel`,
+            title: 'Authorized Admin Only'
         });
-        return () => unsub();
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -51,6 +43,11 @@ const SecretPage = ({ onNavigate }: SecretPageProps) => {
         setLoading(true);
 
         try {
+            if (!firebaseEnabled || !auth) {
+                setError('Firebase is not connected yet.');
+                return;
+            }
+
             const result = await authSignInWithPopup(auth, provider);
             const details = getAdditionalUserInfo(result);
 
@@ -105,6 +102,11 @@ const SecretPage = ({ onNavigate }: SecretPageProps) => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 mt-2">
+                    {!firebaseEnabled && (
+                        <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm text-center">
+                            Firebase isn&apos;t connected yet. The private dashboard will unlock once your Firebase config is added.
+                        </div>
+                    )}
                     {error && (
                         <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
                             {error}
@@ -112,11 +114,11 @@ const SecretPage = ({ onNavigate }: SecretPageProps) => {
                     )}
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || !firebaseEnabled}
                         className={`btn btn-primary w-full flex items-center justify-center gap-3 ${loading ? 'opacity-70 cursor-wait' : ''}`}
                     >
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5 bg-white rounded-full p-0.5" />
-                        {loading ? 'Authorizing...' : 'Authorize Access'}
+                        {loading ? 'Authorizing...' : firebaseEnabled ? 'Authorize Access' : 'Firebase Required'}
                     </button>
 
                     <p className="text-xs text-center text-sec opacity-50 mt-2">
