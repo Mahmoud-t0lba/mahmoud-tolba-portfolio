@@ -518,8 +518,11 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
     const lastName = nameParts.slice(1).join(' ');
 
     // Balanced font sizes for a cleaner look
-    const topSloganSize = isSmallMobile ? 45 : (isMobile ? 55 : 75);
-    const bottomSloganSize = isSmallMobile ? 35 : (isMobile ? 45 : 65);
+    const topSloganSize = isSmallMobile ? 30 : (isMobile ? 40 : 75);
+    const bottomSloganSize = isSmallMobile ? 24 : (isMobile ? 34 : 65);
+    const firstNameFontSize = isSmallMobile ? '3.15rem' : (isMobile ? '4.35rem' : '7rem');
+    const lastNameFontSize = isSmallMobile ? '3.15rem' : (isMobile ? '4.35rem' : '7rem');
+    const mobileNameOverlap = isSmallMobile ? '-0.4rem' : (isMobile ? '-0.8rem' : '-3.1rem');
 
     useEffect(() => {
         if (!isReady) return;
@@ -581,11 +584,11 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
                 backgroundSize: '20px 20px, 20px 20px, 40px 40px'
             }}></div>
 
-            <div className="page-padding grid md:grid-cols-2 gap-12 items-center relative z-10 w-full mt-10">
+            <div className="page-padding grid md:grid-cols-2 gap-10 md:gap-12 items-center relative z-10 w-full mt-10">
 
                 {/* Left Content */}
                 <div className="flex flex-col items-center md:items-start text-center md:text-left relative">
-                    <div className="md:ml-[-20px] mb-[-15px] md:mb-[-40px] origin-center md:origin-left z-20">
+                    <div className="mb-[-6px] md:ml-[-20px] md:mb-[-40px] origin-center md:origin-left z-20">
                         <HandwritingText
                             key="slogan-1"
                             text="THIS IS"
@@ -596,24 +599,30 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
                         />
                     </div>
 
-                    <div ref={titleRef} className="z-10 transition-slow uppercase flex flex-col gap-0 w-full max-w-[500px]" style={{
+                    <div ref={titleRef} className="z-10 transition-slow uppercase flex flex-col gap-0 w-full max-w-[540px]" style={{
                         fontWeight: 900,
                         fontFamily: "'Archivo Black', sans-serif",
-                        lineHeight: '0.8'
+                        lineHeight: isMobile ? '0.9' : '0.8'
                     }}>
-                        <span className="text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] tracking-tighter self-start ml-[-5px] md:ml-[-15px] flex">
+                        <span
+                            className="tracking-[-0.08em] self-center md:self-start ml-0 md:ml-[-15px] flex justify-center md:justify-start"
+                            style={{ fontSize: firstNameFontSize }}
+                        >
                             {firstName.split('').map((char, i) => (
                                 <span key={i} className="name-char opacity-0 inline-block">{char}</span>
                             ))}
                         </span>
-                        <span className="text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] tracking-tighter self-end mr-[-5px] md:mr-[-15px] mt-[-25px] sm:mt-[-35px] md:mt-[-50px] flex">
+                        <span
+                            className="tracking-[-0.08em] self-center md:self-end mr-0 md:mr-[-15px] flex justify-center md:justify-end"
+                            style={{ fontSize: lastNameFontSize, marginTop: mobileNameOverlap }}
+                        >
                             {lastName.split('').map((char, i) => (
                                 <span key={i} className="name-char opacity-0 inline-block">{char === ' ' ? '\u00A0' : char}</span>
                             ))}
                         </span>
                     </div>
 
-                    <div className="mt-[-10px] md:mt-[-50px] md:self-end md:mr-[-10px] lg:mr-[-20px] origin-center md:origin-right z-20">
+                    <div className="mt-1 md:mt-[-50px] md:self-end md:mr-[-10px] lg:mr-[-20px] origin-center md:origin-right z-20">
                         <HandwritingText
                             key={`slogan-2-${profileTitle}`}
                             text={profileTitle}
@@ -632,7 +641,7 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
                     </div>
 
                     {/* Available Badge */}
-                    <div className="mt-12 md:mt-20 md:ml-4 md:pl-4 relative z-[5000]">
+                    <div className="mt-10 md:mt-20 md:ml-4 md:pl-4 relative z-[5000]">
                         <AvailableBadge isDark={isDark} entryDelay={timing.rest} isReady={isReady} />
                     </div>
                 </div>
@@ -645,7 +654,7 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
                         <div ref={box2Ref} className={`absolute -bottom-6 -right-6 size-xl bg-white/10 backdrop-blur-md border border-white/20 ${isDark ? 'z-0' : 'z-30'} scale-75 sm:scale-100`}></div>
 
                         {/* Image Container - with floating animation */}
-                        <div ref={imageContainerRef} className="relative p-4 border border-white/10 z-10 rounded-lg max-w-full glass-panel" style={{ borderRadius: '16px' }}>
+                        <div ref={imageContainerRef} className="relative p-4 border border-white/10 z-10 rounded-[24px] max-w-full glass-panel">
                             <div className="relative w-full max-w-[320px] aspect-[4/5] overflow-hidden bg-white/5 rounded-sm">
                                 {/* shimmer-fast keyframes are in globals.css */}
                                 {/* Skeleton Loader Container */}
@@ -680,7 +689,15 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
                             <div className="absolute -left-10 top-1/2 -rotate-90 font-bold text-xl hidden sm:block text-sec tracking-wider uppercase">
                                 {personalInfo.heroSideLabel}
                             </div>
-                            <div className="absolute bottom-[-30px] left-1/2 -translate-x-1/2 font-bold text-lg text-sec tracking-wider uppercase">
+                        </div>
+
+                        <div className="mt-5 flex justify-center">
+                            <div
+                                className="inline-flex min-w-fit max-w-full items-center justify-center rounded-full border border-white/10 bg-black/10 px-5 py-2.5 text-center text-sm font-bold uppercase tracking-[0.18em] text-sec shadow-lg backdrop-blur-xl sm:px-6 sm:text-base"
+                                style={{
+                                    whiteSpace: 'nowrap'
+                                }}
+                            >
                                 {personalInfo.heroBottomLabel}
                             </div>
                         </div>

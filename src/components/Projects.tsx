@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { projects as localProjects, techStack as localTags } from '../data/portfolioData';
+import { projects as localProjects } from '../data/portfolioData';
 import { motion, AnimatePresence } from 'framer-motion';
 import anime from 'animejs';
 import { X, Search } from 'lucide-react';
-import { sanitizeSvg } from '../lib/sanitize';
 
 import MProjectView from './M-ProjectView';
 import MContributorView, { Contributor } from './M-ContributorView';
@@ -315,9 +314,8 @@ const Projects = () => {
     const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
     const [showContributorModal, setShowContributorModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
-    const [availableTags] = useState<Tag[]>(localTags);
 
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
@@ -370,15 +368,39 @@ const Projects = () => {
         return matrix[b.length][a.length];
     };
 
+    const availableFilters = useMemo(() => {
+        const filterDefinitions = [
+            { name: 'Flutter', matches: (project: Project) => (project.stack || []).includes('Flutter') },
+            { name: 'Clean Architecture', matches: (project: Project) => (project.stack || []).includes('Clean Architecture') },
+            { name: 'Bloc / Cubit', matches: (project: Project) => (project.stack || []).includes('Bloc / Cubit') },
+            { name: 'Provider / Riverpod', matches: (project: Project) => (project.stack || []).includes('Provider / Riverpod') },
+            { name: 'Firebase', matches: (project: Project) => (project.stack || []).includes('Firebase') },
+            { name: 'REST APIs', matches: (project: Project) => (project.stack || []).includes('REST APIs') },
+            { name: 'Maps & Location', matches: (project: Project) => (project.stack || []).includes('Maps & Location') },
+            { name: 'Local Storage', matches: (project: Project) => (project.stack || []).includes('Local Storage') },
+            { name: 'Transport & Logistics', matches: (project: Project) => project.category === 'Transport & Logistics' },
+            { name: 'Social & Lifestyle', matches: (project: Project) => project.category === 'Social & Lifestyle' },
+            { name: 'Education & Utilities', matches: (project: Project) => project.category === 'Education & Utilities' },
+            { name: 'Android', matches: (project: Project) => (project.platforms || []).includes('Android') },
+            { name: 'iOS', matches: (project: Project) => (project.platforms || []).includes('iOS') },
+        ];
+
+        return filterDefinitions
+            .map((filter) => ({
+                ...filter,
+                count: projectsData.filter(filter.matches).length
+            }))
+            .filter((filter) => filter.count > 0);
+    }, [projectsData]);
+
     const filteredProjects = useMemo(() => {
         let results = projectsData;
-        if (selectedTags.length > 0) {
+        if (selectedFilters.length > 0) {
             results = results.filter(project => {
-                const projectTags = [
-                    ...(project.stack || []).map(s => s.toLowerCase()),
-                    ...(project.tags || []).map(t => t.name.toLowerCase())
-                ];
-                return selectedTags.every(tag => projectTags.includes(tag.toLowerCase()));
+                return selectedFilters.every((selectedFilter) => {
+                    const matchingFilter = availableFilters.find((filter) => filter.name === selectedFilter);
+                    return matchingFilter ? matchingFilter.matches(project) : true;
+                });
             });
         }
         if (searchQuery.length < 2) {
@@ -404,6 +426,8 @@ const Projects = () => {
                 return d;
             };
             minDistance = Math.min(minDistance, checkTerm(project.title || ''));
+            minDistance = Math.min(minDistance, checkTerm(project.category || ''));
+            minDistance = Math.min(minDistance, checkTerm(project.role || ''));
             (project.tags || []).forEach(tag => {
                 minDistance = Math.min(minDistance, checkTerm(typeof tag === 'string' ? tag : tag.name));
             });
@@ -420,13 +444,13 @@ const Projects = () => {
             .filter(item => item.minDistance <= 2)
             .sort((a, b) => a.minDistance - b.minDistance)
             .map(item => item.project);
-    }, [searchQuery, projectsData, selectedTags]);
+    }, [availableFilters, searchQuery, projectsData, selectedFilters]);
 
-    const toggleTag = (tagName: string) => {
-        setSelectedTags(prev =>
-            prev.includes(tagName)
-                ? prev.filter(t => t !== tagName)
-                : [...prev, tagName]
+    const toggleFilter = (filterName: string) => {
+        setSelectedFilters(prev =>
+            prev.includes(filterName)
+                ? prev.filter(t => t !== filterName)
+                : [...prev, filterName]
         );
     };
 
@@ -492,7 +516,7 @@ const Projects = () => {
                         <Search size={20} className="text-sec mr-3" />
                         <input
                             type="text"
-                            placeholder="Search by project, domain, or technology..."
+                            placeholder="Search by project, company, domain, or capability..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="border-none bg-transparent text-primary text-base w-full outline-none font-inter"
@@ -511,19 +535,18 @@ const Projects = () => {
                 {/* Filter Tags - Reduced MB */}
                 <div className={`mb-8 flex flex-wrap items-center ${windowWidth < 460 ? 'gap-2' : 'gap-2.5'}`}>
                     <span className="text-xs font-black text-sec mr-2.5 uppercase tracking-widest opacity-60">
-                        Filter View:
+                        Filter by:
                     </span>
 
                     {/* Tags Container */}
                     <div className="flex flex-wrap gap-2 items-center">
-                        {availableTags.map(tag => {
-                            const isActive = selectedTags.includes(tag.name);
-                            const isUrl = tag.iconSvg && (tag.iconSvg.startsWith('http') || tag.iconSvg.includes('/o/'));
+                        {availableFilters.map((filter) => {
+                            const isActive = selectedFilters.includes(filter.name);
 
                             return (
                                 <button
-                                    key={tag.id || tag.name}
-                                    onClick={() => toggleTag(tag.name)}
+                                    key={filter.name}
+                                    onClick={() => toggleFilter(filter.name)}
                                     className={`
                                         flex items-center gap-2 rounded-xl border font-bold cursor-pointer transition-all duration-300
                                         backdrop-blur-xl shadow-sm whitespace-nowrap
@@ -533,29 +556,18 @@ const Projects = () => {
                                             : 'border-[var(--navbar-border)] bg-[var(--card-bg)] text-sec'}
                                     `}
                                 >
-                                    {tag.iconSvg && (
-                                        isUrl ? (
-                                            <img
-                                                src={tag.iconSvg}
-                                                alt={tag.name}
-                                                className={`w-8 h-8 object-contain ${isActive ? '' : 'grayscale opacity-60'}`}
-                                            />
-                                        ) : (
-                                            <div
-                                                dangerouslySetInnerHTML={{ __html: sanitizeSvg(tag.iconSvg) }}
-                                                className="w-8 h-8 fill-current"
-                                                style={{ opacity: isActive ? 1 : 0.6 }}
-                                            />
-                                        )
-                                    )}
-                                    {tag.name}
+                                    <span className={`h-2.5 w-2.5 rounded-full ${isActive ? 'bg-accent' : 'bg-[var(--text-muted)]/40'}`} />
+                                    {filter.name}
+                                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${isActive ? 'bg-accent/10' : 'bg-black/5 dark:bg-white/5'}`}>
+                                        {filter.count}
+                                    </span>
                                 </button>
                             );
                         })}
 
-                        {selectedTags.length > 0 && (
+                        {selectedFilters.length > 0 && (
                             <button
-                                onClick={() => setSelectedTags([])}
+                                onClick={() => setSelectedFilters([])}
                                 className="px-3 py-2 bg-transparent border-none text-accent text-xs font-black cursor-pointer transition-all duration-200 uppercase tracking-widest ml-1 hover:opacity-70"
                             >
                                 [ Reset ]
@@ -565,19 +577,28 @@ const Projects = () => {
                 </div>
 
                 {/* Projects Grid */}
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
-                    {filteredProjects.map((project, index) => (
-                        <ProjectCard
-                            key={project.id}
-                            project={project}
-                            index={index}
-                            onClick={() => {
-                                window.dispatchEvent(new CustomEvent('revil:project_open', { detail: { id: project.id } }));
-                                setSelectedProjectId(project.id ?? project.name);
-                            }}
-                        />
-                    ))}
-                </div>
+                {filteredProjects.length > 0 ? (
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
+                        {filteredProjects.map((project, index) => (
+                            <ProjectCard
+                                key={project.id}
+                                project={project}
+                                index={index}
+                                onClick={() => {
+                                    window.dispatchEvent(new CustomEvent('revil:project_open', { detail: { id: project.id } }));
+                                    setSelectedProjectId(project.id ?? project.name);
+                                }}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="rounded-[28px] border border-dashed border-[var(--navbar-border)] bg-[var(--card-bg)] p-8 text-center">
+                        <h3 className="text-2xl font-black text-primary">No projects match this view yet.</h3>
+                        <p className="mt-3 text-sec">
+                            Try clearing one of the selected filters or searching with a broader keyword.
+                        </p>
+                    </div>
+                )}
 
                 {/* Modals */}
                 <AnimatePresence>

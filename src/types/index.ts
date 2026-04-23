@@ -4,6 +4,7 @@ export interface TagData {
     color?: string;
     iconSvg?: string;
     skillIcon?: string;
+    summary?: string;
 }
 
 export interface TagFormData extends TagData {

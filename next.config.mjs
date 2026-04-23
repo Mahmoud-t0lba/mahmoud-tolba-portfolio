@@ -5,6 +5,9 @@ const isProjectPagesRepo = process.env.GITHUB_ACTIONS === 'true'
   && repoName.toLowerCase() !== `${owner}.github.io`.toLowerCase();
 
 const basePath = isProjectPagesRepo ? `/${repoName}` : '';
+const siteUrl = owner
+  ? `https://${owner}.github.io${basePath}`
+  : 'http://localhost:3000';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -15,7 +18,11 @@ const nextConfig = {
     unoptimized: true,
   },
   basePath,
-  assetPrefix: basePath ? `${basePath}/` : '',
+  assetPrefix: basePath || undefined,
+  env: {
+    NEXT_PUBLIC_BASE_PATH: basePath,
+    NEXT_PUBLIC_SITE_URL: siteUrl,
+  },
   typescript: {
     ignoreBuildErrors: false,
   }

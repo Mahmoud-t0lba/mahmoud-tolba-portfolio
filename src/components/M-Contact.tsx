@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
-import { X, Send, MessageSquare, Calendar, Mail } from 'lucide-react';
+import { X, Send, MessageSquare, Calendar, Mail, PhoneCall } from 'lucide-react';
 import { doc, onSnapshot, runTransaction } from 'firebase/firestore';
 import Alert from './Alert';
 import useSafeAlert from '../hooks/useSafeAlert';
@@ -256,13 +256,13 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
         layout
         initial={{ opacity: 0, scale: 0.96, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="glass-panel relative w-full max-w-2xl overflow-hidden bg-primary p-8 rounded-3xl"
+        className="glass-panel relative w-full max-w-3xl overflow-hidden bg-primary p-8 md:p-10 rounded-[32px]"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-8">
           <div>
             <h2 className="text-2xl font-bold">Contact Mahmoud</h2>
-            <p className="text-sm text-sec mt-1">Reach out for senior Flutter roles, product delivery, or consulting.</p>
+            <p className="text-sm text-sec mt-2 leading-7">Reach out for senior Flutter roles, product delivery, architecture support, or consulting.</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full">
             <X />
@@ -270,13 +270,13 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
         </div>
 
         {!firebaseEnabled && (
-          <div className="mb-5 rounded-2xl border border-blue-500/20 bg-blue-500/8 px-4 py-3 text-sm text-sec">
+          <div className="mb-6 rounded-2xl border border-blue-500/20 bg-blue-500/8 px-5 py-4 text-sm leading-7 text-sec">
             This deployment is running in static mode. Messages and meeting requests will open in your email app instead of syncing to Firebase.
           </div>
         )}
 
         {!hideTabs && (
-          <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-black/5 dark:bg-white/5 p-1.5">
+          <div className="mb-8 grid grid-cols-2 gap-2 rounded-2xl bg-black/5 dark:bg-white/5 p-1.5">
             <button
               type="button"
               onClick={() => setActiveTab('message')}
@@ -300,11 +300,11 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
           </div>
         )}
 
-        <form onSubmit={activeTab === 'meeting' ? handleMeetingSubmit : handleMessageSubmit} className="space-y-5">
+        <form onSubmit={activeTab === 'meeting' ? handleMeetingSubmit : handleMessageSubmit} className="space-y-6">
           <input
             type="text"
             placeholder="Name"
-            className="w-full p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-blue-500 outline-none"
+            className="w-full rounded-2xl border border-transparent bg-black/5 p-4 outline-none focus:border-blue-500 dark:bg-white/5"
             required
             value={activeTab === 'meeting' ? meetingData.name : formData.name}
             onChange={(event) => (
@@ -317,7 +317,7 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
           <input
             type="email"
             placeholder="Email"
-            className="w-full p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-blue-500 outline-none"
+            className="w-full rounded-2xl border border-transparent bg-black/5 p-4 outline-none focus:border-blue-500 dark:bg-white/5"
             required
             value={activeTab === 'meeting' ? meetingData.email : formData.email}
             onChange={(event) => (
@@ -330,27 +330,27 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
           {activeTab === 'message' ? (
             <textarea
               placeholder="Tell Mahmoud a little about the role, product, or help you need."
-              className="w-full p-3 h-36 rounded-xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-blue-500 outline-none resize-none"
+              className="h-40 w-full resize-none rounded-2xl border border-transparent bg-black/5 p-4 leading-7 outline-none focus:border-blue-500 dark:bg-white/5"
               required
               value={formData.message}
               onChange={(event) => setFormData((prev) => ({ ...prev, message: event.target.value }))}
             />
           ) : (
-            <div className="space-y-4">
-              <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm text-sec">
+            <div className="space-y-5">
+              <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-5 py-4 text-sm text-sec">
                 <div className="font-semibold text-primary">Requested date</div>
-                <div className="mt-1">{selectedDateLabel}</div>
+                <div className="mt-2">{selectedDateLabel}</div>
               </div>
 
               <input
                 type="text"
                 placeholder="What is this meeting about?"
-                className="w-full p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-blue-500 outline-none"
+                className="w-full rounded-2xl border border-transparent bg-black/5 p-4 outline-none focus:border-blue-500 dark:bg-white/5"
                 value={meetingData.reason}
                 onChange={(event) => setMeetingData((prev) => ({ ...prev, reason: event.target.value }))}
               />
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
                 {timeSlots.map((slot) => {
                   const userSlot = convertTimeToUser(slot);
                   const isTaken = takenSlots.includes(userSlot);
@@ -361,7 +361,7 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
                       type="button"
                       disabled={isTaken}
                       onClick={() => setSelectedTime(userSlot)}
-                      className={`p-2 text-xs rounded-lg border transition-all ${
+                      className={`rounded-xl border p-3 text-xs font-bold transition-all ${
                         selectedTime === userSlot
                           ? 'bg-blue-500 text-white border-blue-500'
                           : isTaken
@@ -377,15 +377,24 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
             </div>
           )}
 
-          <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-3 text-sm text-sec">
-            <div className="flex items-center gap-2 text-primary font-semibold">
-              <Mail size={16} className="text-blue-500" />
-              Direct contact
-            </div>
-            <div className="mt-2">{personalInfo.email}</div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <a href={`mailto:${personalInfo.email}`} className="rounded-2xl border border-black/10 bg-black/5 px-5 py-4 text-sm text-sec dark:border-white/10 dark:bg-white/5">
+              <div className="flex items-center gap-2 font-semibold text-primary">
+                <Mail size={16} className="text-blue-500" />
+                Email
+              </div>
+              <div className="mt-3 break-all">{personalInfo.email}</div>
+            </a>
+            <a href={`tel:${personalInfo.phone.replace(/\s+/g, '')}`} className="rounded-2xl border border-black/10 bg-black/5 px-5 py-4 text-sm text-sec dark:border-white/10 dark:bg-white/5">
+              <div className="flex items-center gap-2 font-semibold text-primary">
+                <PhoneCall size={16} className="text-blue-500" />
+                Call Mahmoud
+              </div>
+              <div className="mt-3">{personalInfo.phone}</div>
+            </a>
           </div>
 
-          <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors disabled:opacity-70">
+          <button type="submit" disabled={isSubmitting} className="w-full rounded-2xl bg-blue-500 py-4 text-white font-bold flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors disabled:opacity-70">
             {isSubmitting
               ? 'Sending...'
               : activeTab === 'meeting'

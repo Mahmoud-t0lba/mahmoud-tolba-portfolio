@@ -16,6 +16,7 @@ import MProjectView from './components/M-ProjectView';
 import MContributorView, { Contributor as ContributorViewData } from './components/M-ContributorView';
 import { ProjectData as Project, ContributorData as Contributor } from './types';
 import { firebaseEnabled } from './lib/firebase';
+import { siteBasePath } from './lib/site';
 
 type Section = 'home' | 'stack' | 'projects' | 'secret' | 'dashboard' | 'view_link';
 
@@ -23,7 +24,7 @@ function App() {
   const [currentSection, setCurrentSection] = useState<Section>(() => {
     if (typeof window === 'undefined') return 'home';
     const path = window.location.pathname;
-    const base = "";
+    const base = siteBasePath;
     const normPath = path.replace(/\/$/, '');
     const normBase = base.replace(/\/$/, '');
     if (normPath !== normBase && normPath !== '') {

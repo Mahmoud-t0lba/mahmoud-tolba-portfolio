@@ -1,4 +1,5 @@
 import { ProjectData, TagData } from '../types';
+import { withBasePath } from '../lib/site';
 
 export const personalInfo = {
     name: 'Mahmoud Tolba',
@@ -14,14 +15,15 @@ export const personalInfo = {
     availability: '80%',
     currentTime: 'UTC+02:00',
     resumeUrl: 'https://mahmoud-t0lba.github.io/portfolio/cv/mahmoud-tolba-cv.pdf',
-    heroImageUrl: '/profile.png',
+    heroImageUrl: withBasePath('/profile.png'),
     heroImageAlt: 'Portrait of Mahmoud Tolba',
     heroSideLabel: '5+ Years',
-    heroBottomLabel: 'Android & iOS',
+    heroBottomLabel: 'Senior Mobile Developer',
     socialLinks: {
-        github: 'https://github.com/Mahmoud-t0lba/',
         linkedin: 'https://www.linkedin.com/in/mahmoud-t0lba',
-        email: 'mailto:mahmoudt0lba0111@gmail.com'
+        github: 'https://github.com/Mahmoud-t0lba/',
+        email: 'mailto:mahmoudt0lba0111@gmail.com',
+        call: 'tel:+201097107762'
     }
 };
 
@@ -49,30 +51,81 @@ export const availabilityInfo = {
 };
 
 export const techStack: TagData[] = [
-    { name: 'Flutter', color: '#02569B', skillIcon: 'flutter' },
-    { name: 'Dart', color: '#0175C2', skillIcon: 'dart' },
-    { name: 'React Native', color: '#61DAFB', skillIcon: 'react' },
-    { name: 'Swift', color: '#F05138', skillIcon: 'swift' },
-    { name: 'Kotlin', color: '#7F52FF', skillIcon: 'kotlin' },
-    { name: 'Firebase', color: '#FFCA28', skillIcon: 'firebase' },
-    { name: 'Bloc/Cubit', color: '#2563EB' },
-    { name: 'Provider', color: '#0EA5E9' },
-    { name: 'GetX', color: '#7C3AED' },
-    { name: 'Riverpod', color: '#2563EB' },
-    { name: 'Clean Architecture', color: '#16A34A' },
-    { name: 'MVVM', color: '#14B8A6' },
-    { name: 'SOLID', color: '#3B82F6' },
-    { name: 'Dependency Injection', color: '#06B6D4' },
-    { name: 'REST APIs', color: '#F97316' },
-    { name: 'GraphQL', color: '#E10098' },
-    { name: 'WebSocket', color: '#EC4899' },
-    { name: 'Sqflite', color: '#0F766E' },
-    { name: 'Hive', color: '#CA8A04' },
-    { name: 'Google Maps', color: '#34A853' },
-    { name: 'FCM', color: '#FB923C' },
-    { name: 'GitHub Actions', color: '#111827', skillIcon: 'githubactions' },
-    { name: 'Bitrise', color: '#EF4444' },
-    { name: 'Fastlane', color: '#6366F1' }
+    {
+        name: 'Flutter',
+        color: '#02569B',
+        skillIcon: 'flutter',
+        summary: 'Cross-platform Android and iOS apps with polished UI, animation, and scalable feature delivery.'
+    },
+    {
+        name: 'Dart',
+        color: '#0175C2',
+        skillIcon: 'dart',
+        summary: 'Null-safe production code, reusable modules, and maintainable package structure.'
+    },
+    {
+        name: 'Bloc / Cubit',
+        color: '#2563EB',
+        summary: 'Predictable state management for large features, clean events, and stable UI states.'
+    },
+    {
+        name: 'Provider / Riverpod',
+        color: '#0EA5E9',
+        summary: 'Lightweight reactive state layers for modular flows, prototypes, and shared app services.'
+    },
+    {
+        name: 'Clean Architecture',
+        color: '#16A34A',
+        summary: 'Feature-first separation between presentation, domain, and data for long-term maintainability.'
+    },
+    {
+        name: 'SOLID + DI',
+        color: '#14B8A6',
+        summary: 'Low-coupled, testable codebases using dependency injection and reusable abstractions.'
+    },
+    {
+        name: 'Firebase',
+        color: '#FFCA28',
+        skillIcon: 'firebase',
+        summary: 'Auth, Firestore, Storage, notifications, analytics, and backend-friendly mobile integrations.'
+    },
+    {
+        name: 'REST APIs',
+        color: '#F97316',
+        summary: 'Robust networking, pagination, error handling, token flows, and backend contract integration.'
+    },
+    {
+        name: 'Realtime & WebSocket',
+        color: '#EC4899',
+        summary: 'Live updates, streaming data, socket-driven UX, and event-based product flows.'
+    },
+    {
+        name: 'Maps & Location',
+        color: '#34A853',
+        summary: 'Google Maps, geolocation, trip tracking, routes, and map-centric product experiences.'
+    },
+    {
+        name: 'Local Storage',
+        color: '#0F766E',
+        summary: 'Hive, Sqflite, caching, offline-first behavior, and persisted user state.'
+    },
+    {
+        name: 'Native Bridges',
+        color: '#7F52FF',
+        summary: 'Swift, Kotlin, platform channels, and SDK configuration for integration-heavy mobile work.'
+    },
+    {
+        name: 'CI/CD & Releases',
+        color: '#111827',
+        skillIcon: 'githubactions',
+        summary: 'GitHub Actions, Bitrise, Fastlane, signing, and dependable App Store / Play Store delivery.'
+    },
+    {
+        name: 'React Native',
+        color: '#61DAFB',
+        skillIcon: 'react',
+        summary: 'Previous React Native experience that helps with migrations, audits, and legacy support.'
+    }
 ];
 
 export const resumeHighlights = [
@@ -175,7 +228,7 @@ export const projects: ProjectData[] = [
         description: 'Bus transportation app for Egypt focused on route booking, trip visibility, and a smoother rider experience across Android and iOS.',
         fullDescription: 'By Bus is a production mobile transport product built around booking, route visibility, rider convenience, and dependable trip execution. Mahmoud owned the passenger and captain apps from concept through launch, shaping the architecture, feature flow, and engineering rhythm with a product-minded approach.',
         images: [],
-        stack: ['Flutter', 'Dart', 'Clean Architecture', 'REST APIs', 'Firebase'],
+        stack: ['Flutter', 'Clean Architecture', 'Bloc / Cubit', 'REST APIs', 'Firebase', 'Maps & Location'],
         tags: [
             { name: 'Transport & Logistics' },
             { name: 'Android' },
@@ -207,7 +260,7 @@ export const projects: ProjectData[] = [
         description: 'Transport and logistics project included in the CV as part of Mahmoud\'s applied mobile product experience.',
         fullDescription: 'Ajlakum represents Mahmoud\'s transport-focused project work from the CV. It rounds out his logistics experience beyond public store-backed releases and reflects hands-on product delivery in movement, booking, and operationally sensitive mobile workflows.',
         images: [],
-        stack: ['Flutter', 'Dart'],
+        stack: ['Flutter', 'Clean Architecture', 'Bloc / Cubit', 'REST APIs'],
         tags: [
             { name: 'Transport & Logistics' },
             { name: 'CV-listed' }
@@ -234,7 +287,7 @@ export const projects: ProjectData[] = [
         description: 'Carpooling app in Egypt that connects drivers and passengers through ride discovery, booking, and safer shared commuting flows.',
         fullDescription: 'SAWA is a public carpooling product designed around affordable, sustainable daily movement. Mahmoud contributed to feature delivery, ride-booking flows, UI refinement, and practical collaboration with stakeholders in an active production codebase.',
         images: [],
-        stack: ['Flutter', 'Dart', 'Google Maps', 'REST APIs'],
+        stack: ['Flutter', 'Bloc / Cubit', 'REST APIs', 'Maps & Location', 'Firebase'],
         tags: [
             { name: 'Social & Lifestyle' },
             { name: 'Android' },
@@ -265,7 +318,7 @@ export const projects: ProjectData[] = [
         description: 'Islamic companion app that combines Quran reading, adhkar, prayer times, Qibla, recitations, widgets, and reminders in one mobile experience.',
         fullDescription: 'Wird is a content-rich Islamic companion app that blends Quran reading, daily supplications, prayer tools, widgets, and reminder flows into one mobile product. It reflects Mahmoud\'s experience delivering utility-heavy interfaces with many daily-use entry points.',
         images: [],
-        stack: ['Flutter', 'Dart', 'Local Notifications', 'Sqflite'],
+        stack: ['Flutter', 'Provider / Riverpod', 'Local Storage', 'Firebase'],
         tags: [
             { name: 'Social & Lifestyle' },
             { name: 'Utility' },
@@ -296,7 +349,7 @@ export const projects: ProjectData[] = [
         description: 'Grocery shopping app built around fresh fruits, vegetables, and farm-sourced produce ordering with delivery convenience.',
         fullDescription: 'Kumquaty is a commerce-style grocery experience centered on local produce, browsing, ordering, and delivery convenience. It highlights Mahmoud\'s product work in e-commerce-style UX, operational ordering flows, and polished cross-platform delivery.',
         images: [],
-        stack: ['Flutter', 'Dart', 'REST APIs', 'Firebase'],
+        stack: ['Flutter', 'Clean Architecture', 'REST APIs', 'Firebase', 'Local Storage'],
         tags: [
             { name: 'Social & Lifestyle' },
             { name: 'E-commerce' },
@@ -327,7 +380,7 @@ export const projects: ProjectData[] = [
         description: 'Islamic lifestyle app centered on prayer times, adhkar, supplications, and tasbeeh in a lightweight Android experience.',
         fullDescription: 'Sadakat is a lightweight Android lifestyle utility focused on daily Islamic reminders, prayer-time awareness, adhkar, and digital tasbeeh. It demonstrates Mahmoud\'s experience with focused utility products that prioritize recurring use and clarity.',
         images: [],
-        stack: ['Flutter', 'Dart', 'Local Notifications'],
+        stack: ['Flutter', 'Local Storage', 'Firebase'],
         tags: [
             { name: 'Social & Lifestyle' },
             { name: 'Utility' },
@@ -357,7 +410,7 @@ export const projects: ProjectData[] = [
         description: 'Engineering education and training app for an Egyptian-Saudi academy offering courses, online learning, and professional development content.',
         fullDescription: 'Engineering Tracks is an education-focused product built around structured learning, quizzes, training content, and ongoing professional development. It reflects Mahmoud\'s experience in content-led mobile delivery and dependable product execution for active educational platforms.',
         images: [],
-        stack: ['Flutter', 'Dart', 'REST APIs', 'Push Notifications'],
+        stack: ['Flutter', 'Clean Architecture', 'REST APIs', 'Firebase'],
         tags: [
             { name: 'Education & Utilities' },
             { name: 'Android' },
@@ -388,7 +441,7 @@ export const projects: ProjectData[] = [
         description: 'Online learning app delivering courses and lectures across multiple study areas through a mobile-first education experience.',
         fullDescription: 'A-Plus is a mobile-first learning product that packages course libraries, lectures, and teacher-led study content into a streamlined education experience. It adds another store-backed education release to Mahmoud\'s portfolio and reinforces his strength in content-led mobile UX.',
         images: [],
-        stack: ['Flutter', 'Dart', 'Video-based Learning', 'REST APIs'],
+        stack: ['Flutter', 'Provider / Riverpod', 'REST APIs', 'Local Storage'],
         tags: [
             { name: 'Education & Utilities' },
             { name: 'Android' },
@@ -418,7 +471,7 @@ export const projects: ProjectData[] = [
         description: 'Education and utility project listed in the CV as part of Mahmoud\'s broader product work.',
         fullDescription: 'Maktabi Plus appears in Mahmoud\'s CV as part of his broader education and utility project experience. It helps complete the picture of his work across learning-focused products beyond the public listings that appear on stores.',
         images: [],
-        stack: ['Flutter', 'Dart'],
+        stack: ['Flutter', 'Clean Architecture', 'REST APIs'],
         tags: [
             { name: 'Education & Utilities' },
             { name: 'CV-listed' }
@@ -445,7 +498,7 @@ export const projects: ProjectData[] = [
         description: 'Business services app for a Saudi IT company offering web design, app development, hosting, and programming services through mobile.',
         fullDescription: 'Teksa is a business-services mobile app aimed at presenting web, app, hosting, and programming services through a polished customer-facing experience. It reflects Mahmoud\'s ability to adapt Flutter delivery to service-oriented businesses and B2B-flavored product messaging.',
         images: [],
-        stack: ['Flutter', 'Dart', 'REST APIs'],
+        stack: ['Flutter', 'REST APIs', 'Firebase'],
         tags: [
             { name: 'Other' },
             { name: 'Business Services' },
@@ -477,7 +530,7 @@ export const projects: ProjectData[] = [
         description: 'iOS booking app designed around theatre discovery, show schedules, interactive seat selection, and secure payment flows.',
         fullDescription: 'GENE is an iOS-first booking experience built around theatre discovery, schedules, seat maps, and secure transactions. It showcases Mahmoud\'s work on transaction-heavy flows and detail-sensitive product experiences in booking-oriented interfaces.',
         images: [],
-        stack: ['Flutter', 'Dart', 'Booking UX'],
+        stack: ['Flutter', 'Clean Architecture', 'REST APIs', 'Local Storage'],
         tags: [
             { name: 'Other' },
             { name: 'iOS' },
@@ -506,7 +559,7 @@ export const projects: ProjectData[] = [
         description: 'iOS shopping app for Shahia\'s frozen meat and vegetable product catalog, presented as a retail ordering experience.',
         fullDescription: 'Shahia is a commerce-oriented iOS app focused on frozen food browsing and retail ordering. It rounds out Mahmoud\'s public release experience with product-delivery work in shopping and catalog-heavy mobile flows.',
         images: [],
-        stack: ['Flutter', 'Dart', 'Retail UX'],
+        stack: ['Flutter', 'REST APIs', 'Local Storage'],
         tags: [
             { name: 'Other' },
             { name: 'iOS' },

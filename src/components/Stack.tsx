@@ -1,337 +1,272 @@
-import { createElement, useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import anime from 'animejs';
-import { Github, Instagram, Linkedin, Twitter, Facebook, Mail, Link as LinkIcon, Twitch, Youtube, Code } from 'lucide-react';
+import {
+    Blocks,
+    BriefcaseBusiness,
+    Cable,
+    Code2,
+    Database,
+    DatabaseZap,
+    Github,
+    Layers3,
+    Linkedin,
+    Mail,
+    MapPinned,
+    PhoneCall,
+    RadioTower,
+    Rocket,
+    Share2,
+    Smartphone,
+    type LucideIcon
+} from 'lucide-react';
+import { experiences, personalInfo, resumeHighlights, techStack } from '../data/portfolioData';
 import { useSocialTracker } from '../hooks/useSocialTracker';
-import { techStack, personalInfo } from '../data/portfolioData';
+import { isExternalHref } from '../lib/site';
 
-interface StackItemProps {
-    icon: string;
+interface SkillCardProps {
     name: string;
+    summary?: string;
+    color?: string;
+    skillIcon?: string;
     delay: number;
-    iconSize: number;
 }
 
-const StackItem = ({ icon, name, iconSize, delay }: StackItemProps) => {
-    const itemRef = useRef<HTMLDivElement>(null);
+const skillIconMap: Record<string, LucideIcon> = {
+    'flutter': Smartphone,
+    'dart': Code2,
+    'bloc / cubit': Share2,
+    'provider / riverpod': Share2,
+    'clean architecture': Layers3,
+    'solid + di': Blocks,
+    'firebase': DatabaseZap,
+    'rest apis': Cable,
+    'realtime & websocket': RadioTower,
+    'maps & location': MapPinned,
+    'local storage': Database,
+    'native bridges': Smartphone,
+    'ci/cd & releases': Rocket,
+    'react native': Smartphone,
+};
+
+const socialIconMap: Record<string, LucideIcon> = {
+    linkedin: Linkedin,
+    github: Github,
+    email: Mail,
+    call: PhoneCall,
+};
+
+const renderSkillFallbackIcon = (name: string) => {
+    const IconComponent = skillIconMap[name.toLowerCase()] || BriefcaseBusiness;
+    return <IconComponent size={30} strokeWidth={1.9} />;
+};
+
+const SkillCard = ({ name, summary, color, skillIcon, delay }: SkillCardProps) => {
+    const cardRef = useRef<HTMLDivElement>(null);
     const [isHovered, setIsHovered] = useState(false);
     const [imgError, setImgError] = useState(false);
+    const imageSrc = skillIcon ? `https://skillicons.dev/icons?i=${skillIcon}` : '';
 
     useEffect(() => {
         anime({
-            targets: itemRef.current,
+            targets: cardRef.current,
             opacity: [0, 1],
-            filter: ['blur(20px)', 'blur(0px)'],
-            duration: 1200,
-            delay: delay,
+            translateY: [32, 0],
+            filter: ['blur(16px)', 'blur(0px)'],
+            duration: 750,
+            delay,
             easing: 'easeOutExpo'
         });
     }, [delay]);
 
-    const showFallback = !icon || imgError;
-    const minHeight = Math.max(iconSize + 20, 60);
-    const fallbackSize = Math.max(iconSize * 0.8, 40);
-
     return (
         <div
-            ref={itemRef}
-            className="w-full h-full flex items-center justify-center p-3 opacity-0"
-            style={{ minHeight: `${minHeight}px` }}
+            ref={cardRef}
+            className="opacity-0 rounded-[28px] border border-[var(--navbar-border)] bg-[var(--card-bg)] p-5 sm:p-6 shadow-[0_12px_30px_rgba(0,0,0,0.06)] transition-all duration-300"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            style={{
+                transform: isHovered ? 'translateY(-6px)' : 'translateY(0px)',
+                boxShadow: isHovered
+                    ? `0 18px 38px ${color ? `${color}22` : 'rgba(0,0,0,0.08)'}`
+                    : '0 12px 30px rgba(0,0,0,0.06)'
+            }}
         >
-            <div className={`flex items-center justify-center transition-all duration-300 ${isHovered ? 'scale-110' : ''}`}>
-                {showFallback ? (
-                    <Code size={fallbackSize} className="text-zinc-400" />
-                ) : (
-                    <img
-                        src={icon}
-                        alt={name}
-                        title={name}
-                        onError={() => setImgError(true)}
-                        style={{
-                            width: `${iconSize}px`,
-                            height: `${iconSize}px`,
-                            objectFit: 'contain',
-                            objectPosition: 'center',
-                            opacity: isHovered ? 1 : 0.6,
-                            filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
-                            transition: 'all 0.3s ease',
-                            display: 'block'
-                        }}
-                    />
-                )}
+            <div className="flex flex-col items-start gap-5">
+                <div
+                    className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/5"
+                    style={{
+                        background: color ? `${color}18` : 'rgba(255,255,255,0.08)',
+                        color: color || 'var(--accent)'
+                    }}
+                >
+                    {imageSrc && !imgError ? (
+                        <img
+                            src={imageSrc}
+                            alt={name}
+                            className="h-9 w-9 object-contain"
+                            onError={() => setImgError(true)}
+                        />
+                    ) : (
+                        renderSkillFallbackIcon(name)
+                    )}
+                </div>
+
+                <div className="space-y-2.5">
+                    <h3 className="text-xl font-black tracking-tight text-primary">{name}</h3>
+                    {summary && (
+                        <p className="text-sm leading-7 text-sec">
+                            {summary}
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
-    );
-};
-
-const getIcon = (name: string) => {
-    const lower = name.toLowerCase();
-    if (lower.includes('github')) return Github;
-    if (lower.includes('linkedin')) return Linkedin;
-    if (lower.includes('instagram')) return Instagram;
-    if (lower.includes('twitter') || lower.includes('x.com')) return Twitter;
-    if (lower.includes('facebook')) return Facebook;
-    if (lower.includes('youtube')) return Youtube;
-    if (lower.includes('twitch')) return Twitch;
-    if (lower.includes('mail') || lower.includes('@')) return Mail;
-    return LinkIcon;
-};
-
-const SocialIcon = ({ name, url, delay }: { name: string; url: string; delay: number }) => {
-    const iconRef = useRef<HTMLAnchorElement>(null);
-    const { trackClick } = useSocialTracker();
-    const [isHovered, setIsHovered] = useState(false);
-
-    useEffect(() => {
-        anime({
-            targets: iconRef.current,
-            opacity: [0, 1],
-            translateY: [20, 0],
-            duration: 800,
-            delay: delay,
-            easing: 'easeOutQuad'
-        });
-    }, [delay]);
-
-    const iconElement = createElement(getIcon(name), {
-        size: 32,
-        className: `transition-colors duration-300 ${isHovered ? 'text-black' : 'text-gray-500'}`,
-        strokeWidth: 1.5
-    });
-
-    return (
-        <a
-            ref={iconRef}
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackClick(name)}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            className={`relative flex items-center justify-center p-3 rounded-xl transition-all duration-300 ${isHovered ? 'bg-zinc-100 scale-110' : ''}`}
-        >
-            {iconElement}
-            <span 
-                className="absolute md:right-full md:mr-3 md:top-1/2 md:-translate-y-1/2 md:bottom-auto md:left-auto md:translate-x-0 bottom-full mb-3 md:mb-0 left-1/2 -translate-x-1/2 md:left-auto px-3 py-1.5 rounded-lg text-xs font-bold transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-xl"
-                style={{ 
-                    opacity: isHovered ? 1 : 0,
-                    backgroundColor: 'var(--text-primary)',
-                    color: 'var(--bg-primary)'
-                }}
-            >
-                {name}
-            </span>
-        </a>
     );
 };
 
 const Stack = () => {
     const titleRef = useRef<HTMLHeadingElement>(null);
     const handwritingRef = useRef<HTMLDivElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    type StackData = { icon?: string; name?: string };
-    const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
-
-    useEffect(() => {
-        const handleResize = () => setWindowWidth(window.innerWidth);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    const gridConfig = useMemo(() => {
-        const isMobile = windowWidth < 640;
-        const isTablet = windowWidth >= 640 && windowWidth < 1024;
-        let columns: number;
-        let iconSize: number;
-        let paddingTotal: number;
-
-        if (isMobile) {
-            columns = 3;
-            iconSize = windowWidth < 400 ? 45 : 65;
-            paddingTotal = windowWidth < 400 ? 12 : 16;
-        } else if (isTablet) {
-            columns = 4;
-            iconSize = windowWidth < 800 ? 80 : 100;
-            paddingTotal = 20;
-        } else {
-            columns = 5;
-            if (windowWidth < 1100) iconSize = 90;
-            else if (windowWidth < 1280) iconSize = 100;
-            else if (windowWidth < 1440) iconSize = 110;
-            else iconSize = 120;
-            paddingTotal = iconSize > 120 ? 40 : 24;
-        }
-
-        const cellWidth = iconSize + paddingTotal;
-        const markerPositions: number[] = [];
-        for (let i = 1; i < columns; i++) {
-            markerPositions.push((i / columns) * 100);
-        }
-        return { columns, iconSize, markerPositions, cellWidth, isMobile, isTablet };
-    }, [windowWidth]);
-
-    const stackItems = useMemo<StackData[]>(() => (
-        techStack.map((item) => ({
-            name: item.name,
-            icon: item.skillIcon ? `https://skillicons.dev/icons?i=${item.skillIcon}` : ''
-        }))
-    ), []);
-
-    const socialLinks = useMemo(() => (
-        Object.entries(personalInfo.socialLinks).map(([name, url]) => ({
-            name: name.charAt(0).toUpperCase() + name.slice(1),
-            url
-        }))
-    ), []);
+    const introRef = useRef<HTMLDivElement>(null);
+    const { trackClick } = useSocialTracker();
 
     useEffect(() => {
         anime({
-            targets: handwritingRef.current,
+            targets: [handwritingRef.current, titleRef.current, introRef.current],
             opacity: [0, 1],
-            translateY: [20, 0],
-            duration: 600,
-            easing: 'easeOutExpo'
-        });
-
-        anime({
-            targets: titleRef.current,
-            opacity: [0, 1],
-            translateY: [30, 0],
-            duration: 800,
-            delay: 100,
+            translateY: [24, 0],
+            duration: 700,
+            delay: anime.stagger(100),
             easing: 'easeOutExpo'
         });
     }, []);
 
-    const getItemClasses = (index: number) => {
-        const { columns } = gridConfig;
-        const totalItems = stackItems.length;
-        const totalRows = Math.ceil(totalItems / columns);
-        const currentRow = Math.floor(index / columns);
-        const isLastRow = currentRow === totalRows - 1;
-        const isLastCol = (index + 1) % columns === 0;
-        return { isLastRow, isLastCol };
-    };
+    const companies = useMemo(
+        () => experiences.map((item) => item.company),
+        []
+    );
+
+    const focusItems = useMemo(
+        () => resumeHighlights.slice(0, 6),
+        []
+    );
+
+    const socialLinks = useMemo(
+        () => Object.entries(personalInfo.socialLinks).map(([name, url]) => ({
+            name,
+            label: name.charAt(0).toUpperCase() + name.slice(1),
+            url,
+            Icon: socialIconMap[name] || BriefcaseBusiness,
+            external: isExternalHref(url)
+        })),
+        []
+    );
 
     return (
-        <div className="min-h-screen w-full overflow-x-hidden flex flex-col items-center justify-center bg-primary transition-slow pt-20 pb-40 page-padding">
-            <div className="max-w-7xl w-full mx-auto relative z-10">
-                <div className="mb-14">
-                    <div
-                        ref={handwritingRef}
-                        className="text-4xl md:text-5xl opacity-0 mb-[-15px] ml-2"
-                        style={{
-                            fontFamily: "'Caveat', cursive",
-                            color: 'var(--accent)'
-                        }}
-                    >
-                        My Tech
+        <div className="min-h-screen w-full overflow-x-hidden bg-primary transition-slow pt-24 pb-28">
+            <div className="page-padding">
+                <div className="mx-auto max-w-7xl">
+                    <div ref={handwritingRef} className="mb-[-10px] ml-1 text-4xl opacity-0 md:text-5xl" style={{ fontFamily: "'Caveat', cursive", color: 'var(--accent)' }}>
+                        Skills & Companies
                     </div>
                     <h1
                         ref={titleRef}
-                        className="text-6xl md:text-8xl lg:text-9xl font-black transition-slow opacity-0 m-0 leading-none"
+                        className="m-0 text-5xl font-black leading-none opacity-0 md:text-7xl lg:text-8xl"
                         style={{ color: 'var(--text-primary)' }}
                     >
                         Stack
                     </h1>
-                </div>
 
-                <div
-                    ref={containerRef}
-                    className="flex flex-col md:flex-row items-center md:items-start justify-between w-full bg-transparent px-6 sm:px-12 lg:px-20 py-4"
-                >
-                    <div
-                        className="relative shrink-0"
-                        style={{
-                            width: (gridConfig.isMobile || gridConfig.isTablet)
-                                ? 'fit-content'
-                                : `${gridConfig.columns * gridConfig.cellWidth}px`
-                        }}
-                    >
-                        <div className="marker marker-corner-tl"></div>
-                        <div className="marker marker-corner-tr"></div>
-                        <div className="marker marker-corner-bl"></div>
-                        <div className="marker marker-corner-br"></div>
-
-                        {gridConfig.markerPositions.map((pos, idx) => (
-                            <div
-                                key={`top-${idx}`}
-                                className="marker marker-edge-top"
-                                style={{
-                                    left: `${pos}%`,
-                                    transform: 'translateX(-50%)',
-                                    top: '-6px',
-                                    display: 'block'
-                                }}
-                            />
-                        ))}
-
-                        {gridConfig.markerPositions.map((pos, idx) => (
-                            <div
-                                key={`bottom-${idx}`}
-                                className="marker marker-edge-bottom"
-                                style={{
-                                    left: `${pos}%`,
-                                    transform: 'translateX(-50%)',
-                                    bottom: '-6px',
-                                    display: 'block'
-                                }}
-                            />
-                        ))}
-
+                    <div className="mt-10 grid gap-6 xl:grid-cols-[1.05fr_1.55fr] xl:items-start">
                         <div
-                            className="dynamic-stack-grid"
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: (gridConfig.isMobile || gridConfig.isTablet)
-                                    ? `repeat(${gridConfig.columns}, 1fr)`
-                                    : `repeat(${gridConfig.columns}, ${gridConfig.cellWidth}px)`,
-                                gap: 0,
-                                border: '1px dashed var(--text-muted)',
-                                position: 'relative',
-                                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                                width: '100%'
-                            }}
+                            ref={introRef}
+                            className="opacity-0 rounded-[34px] border border-[var(--navbar-border)] bg-[var(--card-bg)] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.07)] sm:p-8"
                         >
-                            {stackItems.map((item, index) => {
-                                const { isLastRow, isLastCol } = getItemClasses(index);
-                                return (
-                                    <div
-                                        key={index}
-                                        className="stack-item-dynamic"
-                                        style={{
-                                            borderRight: isLastCol ? 'none' : '1px dashed var(--text-muted)',
-                                            borderBottom: isLastRow ? 'none' : '1px dashed var(--text-muted)',
-                                            padding: gridConfig.iconSize > 120 ? '20px' : '12px',
-                                            transition: 'all 0.3s ease'
-                                        }}
-                                    >
-                                        <StackItem
-                                            icon={item.icon || ''}
-                                            name={item.name || ''}
-                                            delay={500 + (index * 50)}
-                                            iconSize={gridConfig.iconSize}
-                                        />
+                            <div className="space-y-6">
+                                <div className="space-y-3">
+                                    <p className="text-xs font-black uppercase tracking-[0.28em] text-blue-500/85">
+                                        What I Deliver
+                                    </p>
+                                    <h2 className="text-3xl font-black leading-tight text-primary sm:text-4xl">
+                                        Senior Flutter delivery with architecture, product ownership, and reliable releases.
+                                    </h2>
+                                    <p className="text-base leading-8 text-sec sm:text-lg">
+                                        {personalInfo.bio}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <p className="text-xs font-black uppercase tracking-[0.28em] text-blue-500/85">
+                                        Companies
+                                    </p>
+                                    <div className="flex flex-wrap gap-2.5">
+                                        {companies.map((company) => (
+                                            <span
+                                                key={company}
+                                                className="rounded-full border border-black/5 bg-black/5 px-4 py-2 text-sm font-bold text-primary dark:border-white/8 dark:bg-white/6"
+                                            >
+                                                {company}
+                                            </span>
+                                        ))}
                                     </div>
-                                );
-                            })}
+                                </div>
+
+                                <div className="space-y-3">
+                                    <p className="text-xs font-black uppercase tracking-[0.28em] text-blue-500/85">
+                                        Core Strengths
+                                    </p>
+                                    <div className="flex flex-wrap gap-2.5">
+                                        {focusItems.map((item) => (
+                                            <span
+                                                key={item}
+                                                className="rounded-2xl border border-blue-500/15 bg-blue-500/10 px-4 py-2 text-sm font-semibold text-sec"
+                                            >
+                                                {item}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3 pt-2">
+                                    <p className="text-xs font-black uppercase tracking-[0.28em] text-blue-500/85">
+                                        Connect
+                                    </p>
+                                    <div className="flex flex-wrap gap-3">
+                                        {socialLinks.map(({ name, label, url, Icon, external }) => (
+                                            <a
+                                                key={name}
+                                                href={url}
+                                                target={external ? '_blank' : undefined}
+                                                rel={external ? 'noopener noreferrer' : undefined}
+                                                onClick={() => trackClick(label)}
+                                                className="inline-flex items-center gap-2.5 rounded-2xl border border-black/6 bg-white/40 px-4 py-3 text-sm font-bold text-primary transition-all hover:-translate-y-0.5 hover:border-blue-500/30 hover:text-blue-500 dark:border-white/8 dark:bg-white/4"
+                                            >
+                                                <Icon size={18} className="text-blue-500" />
+                                                {label}
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                            {techStack.map((item, index) => (
+                                <SkillCard
+                                    key={item.name}
+                                    name={item.name}
+                                    summary={item.summary}
+                                    color={item.color}
+                                    skillIcon={item.skillIcon}
+                                    delay={250 + index * 70}
+                                />
+                            ))}
                         </div>
                     </div>
 
-                    {socialLinks.length > 0 && (
-                        <div className="flex flex-row md:flex-col items-center justify-center md:justify-start gap-3 md:gap-4 mt-8 md:mt-0 w-auto md:w-12 shrink-0 relative z-30">
-                            <div className="hidden md:block w-px h-12 bg-gradient-to-b from-gray-400/50 to-transparent mb-2"></div>
-                            {socialLinks.map((link, index) => (
-                                <SocialIcon
-                                    key={link.name}
-                                    name={link.name}
-                                    url={link.url}
-                                    delay={800 + (index * 100)}
-                                />
-                            ))}
-                            <div className="hidden md:block w-px h-12 bg-gradient-to-t from-gray-400/50 to-transparent mt-2"></div>
+                    {techStack.length === 0 && (
+                        <div className="mt-10 rounded-[28px] border border-dashed border-[var(--navbar-border)] p-6 text-center text-sec">
+                            Stack items will appear here once the portfolio data is loaded.
                         </div>
                     )}
                 </div>

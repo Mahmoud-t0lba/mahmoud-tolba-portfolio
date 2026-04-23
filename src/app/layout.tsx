@@ -2,13 +2,20 @@ import type { Metadata } from 'next'
 import './globals.css'
 import '../lib/firebase'
 import ClientProtection from './ClientProtection'
+import { siteOrigin, siteUrl, withBasePath } from '../lib/site'
+
+const shareImage = withBasePath('/og-card.png')
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const metadata: Metadata = {
+  metadataBase: new URL(siteOrigin),
   title: 'Mahmoud Tolba | Senior Flutter Developer',
   description: 'Senior Flutter Developer with 5+ years of experience building scalable, production-grade mobile apps across Android and iOS.',
   applicationName: 'Mahmoud Tolba Portfolio',
   authors: [{ name: 'Mahmoud Tolba' }],
+  alternates: {
+    canonical: siteUrl,
+  },
   keywords: [
     'Mahmoud Tolba',
     'Senior Flutter Developer',
@@ -18,9 +25,37 @@ export const metadata: Metadata = {
     'iOS',
     'Mobile Portfolio'
   ],
-  icons: {
-    icon: '/icon.svg',
+  openGraph: {
+    title: 'Mahmoud Tolba | Senior Flutter Developer',
+    description: 'Senior Flutter Developer with 5+ years of experience building scalable, production-grade mobile apps across Android and iOS.',
+    url: siteUrl,
+    siteName: 'Mahmoud Tolba Portfolio',
+    type: 'website',
+    images: [
+      {
+        url: shareImage,
+        width: 1200,
+        height: 630,
+        alt: 'Mahmoud Tolba portfolio preview',
+      },
+    ],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Mahmoud Tolba | Senior Flutter Developer',
+    description: 'Senior Flutter Developer focused on scalable mobile products across Android and iOS.',
+    images: [shareImage],
+  },
+  icons: {
+    icon: [
+      { url: withBasePath('/icon.svg'), type: 'image/svg+xml' },
+      { url: withBasePath('/icon-192.png'), sizes: '192x192', type: 'image/png' },
+      { url: withBasePath('/icon-512.png'), sizes: '512x512', type: 'image/png' },
+    ],
+    shortcut: withBasePath('/icon.svg'),
+    apple: withBasePath('/icon-192.png'),
+  },
+  manifest: withBasePath('/site.webmanifest'),
 }
 
 export default function RootLayout({
