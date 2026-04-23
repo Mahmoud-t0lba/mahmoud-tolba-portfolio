@@ -522,7 +522,8 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
     const bottomSloganSize = isSmallMobile ? 24 : (isMobile ? 34 : 65);
     const firstNameFontSize = isSmallMobile ? '3.15rem' : (isMobile ? '4.35rem' : '7rem');
     const lastNameFontSize = isSmallMobile ? '3.15rem' : (isMobile ? '4.35rem' : '7rem');
-    const mobileNameOverlap = isSmallMobile ? '-0.4rem' : (isMobile ? '-0.8rem' : '-3.1rem');
+    const nameTracking = isSmallMobile ? '-0.035em' : (isMobile ? '-0.05em' : '-0.065em');
+    const lastNameOffset = isSmallMobile ? '0.18rem' : (isMobile ? '0.05rem' : '-1.4rem');
 
     useEffect(() => {
         if (!isReady) return;
@@ -602,19 +603,19 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
                     <div ref={titleRef} className="z-10 transition-slow uppercase flex flex-col gap-0 w-full max-w-[540px]" style={{
                         fontWeight: 900,
                         fontFamily: "'Archivo Black', sans-serif",
-                        lineHeight: isMobile ? '0.9' : '0.8'
+                        lineHeight: isMobile ? '1' : '0.9'
                     }}>
                         <span
-                            className="tracking-[-0.08em] self-center md:self-start ml-0 md:ml-[-15px] flex justify-center md:justify-start"
-                            style={{ fontSize: firstNameFontSize }}
+                            className="self-center md:self-start ml-0 md:ml-[-15px] flex justify-center md:justify-start"
+                            style={{ fontSize: firstNameFontSize, letterSpacing: nameTracking }}
                         >
                             {firstName.split('').map((char, i) => (
                                 <span key={i} className="name-char opacity-0 inline-block">{char}</span>
                             ))}
                         </span>
                         <span
-                            className="tracking-[-0.08em] self-center md:self-end mr-0 md:mr-[-15px] flex justify-center md:justify-end"
-                            style={{ fontSize: lastNameFontSize, marginTop: mobileNameOverlap }}
+                            className="self-center md:self-end mr-0 md:mr-[-15px] flex justify-center md:justify-end"
+                            style={{ fontSize: lastNameFontSize, marginTop: lastNameOffset, letterSpacing: nameTracking }}
                         >
                             {lastName.split('').map((char, i) => (
                                 <span key={i} className="name-char opacity-0 inline-block">{char === ' ' ? '\u00A0' : char}</span>

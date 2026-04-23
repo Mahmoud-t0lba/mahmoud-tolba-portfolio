@@ -54,6 +54,9 @@ export const metadata: Metadata = {
     ],
     shortcut: withBasePath('/icon.svg'),
     apple: withBasePath('/icon-192.png'),
+    other: [
+      { rel: 'mask-icon', url: withBasePath('/icon.svg'), color: '#193450' },
+    ],
   },
   manifest: withBasePath('/site.webmanifest'),
 }
