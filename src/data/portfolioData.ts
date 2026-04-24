@@ -130,6 +130,24 @@ export const techStack: TagData[] = [
         summary: 'Swift, Kotlin, platform channels, and SDK configuration for integration-heavy mobile work.'
     },
     {
+        name: 'iOS SwiftUI',
+        color: '#0A84FF',
+        skillIcon: 'swift',
+        summary: 'SwiftUI exposure for native iOS screens, platform-specific UI, and Flutter-to-iOS integration points.'
+    },
+    {
+        name: 'Android Kotlin',
+        color: '#7F52FF',
+        skillIcon: 'kotlin',
+        summary: 'Kotlin experience for Android-native modules, SDK setup, platform channels, and integration-heavy features.'
+    },
+    {
+        name: 'Kotlin Jetpack',
+        color: '#3DDC84',
+        skillIcon: 'kotlin',
+        summary: 'Jetpack-aware Android work across lifecycle, modern Android patterns, and native integration support.'
+    },
+    {
         name: 'SDK Integration',
         color: '#0F766E',
         summary: 'Third-party SDK setup for auth, analytics, payments, maps, chat, and business-specific mobile capabilities.'
