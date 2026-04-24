@@ -35,9 +35,9 @@ const Experience = () => {
     );
 
     return (
-        <div className="min-h-screen w-full overflow-x-hidden bg-primary pb-28 pt-24 transition-slow">
+        <div className="min-h-screen w-full overflow-x-hidden bg-primary pb-48 pt-24 transition-slow">
             <div className="page-padding">
-                <div className="mx-auto max-w-7xl">
+                <div className="mx-auto max-w-7xl pb-32">
                     <div ref={handwritingRef} className="mb-[-10px] ml-1 text-4xl opacity-0 md:text-5xl" style={{ fontFamily: "'Caveat', cursive", color: 'var(--accent)' }}>
                         Data & Experience
                     </div>
@@ -50,8 +50,8 @@ const Experience = () => {
                     </h1>
 
                     <div ref={contentRef} className="mt-12 grid gap-10 opacity-0 xl:grid-cols-[0.92fr_1.35fr] xl:items-start">
-                        <div className="space-y-7">
-                            <section className="rounded-[34px] border border-[var(--navbar-border)] bg-[var(--card-bg)] p-7 shadow-[0_18px_40px_rgba(0,0,0,0.07)] sm:p-8">
+                        <div className="space-y-10">
+                            <section className="rounded-[34px] border border-[var(--navbar-border)] bg-[var(--card-bg)] p-6 sm:p-8 shadow-[0_18px_40px_rgba(0,0,0,0.07)]">
                                 <div className="space-y-6">
                                     <div className="space-y-3">
                                         <p className="text-xs font-black uppercase tracking-[0.28em] text-blue-500/85">
@@ -66,12 +66,12 @@ const Experience = () => {
                                     </div>
 
                                     <div className="grid gap-4 sm:grid-cols-2">
-                                        <a href={`mailto:${personalInfo.email}`} className="rounded-[24px] border border-black/5 bg-black/[0.03] p-5 transition-colors hover:text-blue-500 dark:border-white/8 dark:bg-white/[0.03]">
+                                        <a href={`mailto:${personalInfo.email}`} className="group flex min-h-[160px] flex-col justify-between rounded-[24px] border border-black/5 bg-black/[0.03] p-6 transition-all hover:border-blue-500/20 hover:bg-blue-500/[0.02] dark:border-white/8 dark:bg-white/[0.03]">
                                             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-blue-500">
                                                 <Mail size={15} />
                                                 Email
                                             </div>
-                                            <p className="mt-4 break-all text-sm font-bold leading-7 text-primary">{personalInfo.email}</p>
+                                            <p className="mt-4 text-sm font-bold leading-relaxed text-primary transition-colors group-hover:text-blue-500">{personalInfo.email}</p>
                                         </a>
                                         <a
                                             href={personalInfo.socialLinks.call}
@@ -134,13 +134,13 @@ const Experience = () => {
                             </section>
                         </div>
 
-                        <section className="space-y-7">
+                        <section className="space-y-8 sm:space-y-10">
                             <div className="flex items-center gap-3">
                                 <BriefcaseBusiness size={22} className="text-blue-500" />
-                                <h2 className="text-3xl font-black tracking-tight text-primary">Experience Timeline</h2>
+                                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-primary">Experience Timeline</h2>
                             </div>
 
-                            <div className="space-y-7">
+                            <div className="space-y-8 sm:space-y-10">
                                 {experiences.map((experience) => (
                                     <article
                                         key={`${experience.company}-${experience.period}`}

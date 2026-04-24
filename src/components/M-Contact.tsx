@@ -248,7 +248,7 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[1400] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[1400] flex items-center justify-center p-3 sm:p-5">
       {alert?.show && <Alert type={alert.type} message={alert.message} onClose={hideAlert} />}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
@@ -256,13 +256,13 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
         layout
         initial={{ opacity: 0, scale: 0.96, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="glass-panel relative w-full max-w-3xl overflow-hidden bg-primary p-8 md:p-10 rounded-[32px]"
+        className="glass-panel custom-scrollbar relative max-h-[92dvh] w-full max-w-4xl overflow-y-auto bg-primary p-5 rounded-[26px] sm:p-7 md:p-9 lg:p-10 lg:rounded-[32px]"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex justify-between items-center mb-8">
+        <div className="mb-7 flex items-start justify-between gap-5 sm:mb-9">
           <div>
-            <h2 className="text-2xl font-bold">Contact Mahmoud</h2>
-            <p className="text-sm text-sec mt-2 leading-7">Reach out for senior Flutter roles, product delivery, architecture support, or consulting.</p>
+            <h2 className="text-xl font-bold sm:text-2xl">Contact Mahmoud</h2>
+            <p className="mt-2 text-sm leading-6 text-sec sm:leading-7">Reach out for senior Flutter roles, product delivery, architecture support, or consulting.</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full">
             <X />
@@ -270,13 +270,13 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
         </div>
 
         {!firebaseEnabled && (
-          <div className="mb-6 rounded-2xl border border-blue-500/20 bg-blue-500/8 px-5 py-4 text-sm leading-7 text-sec">
+          <div className="mb-7 rounded-2xl border border-blue-500/20 bg-blue-500/8 px-5 py-4 text-sm leading-7 text-sec">
             This deployment is running in static mode. Messages and meeting requests will open in your email app instead of syncing to Firebase.
           </div>
         )}
 
         {!hideTabs && (
-          <div className="mb-8 grid grid-cols-2 gap-2 rounded-2xl bg-black/5 dark:bg-white/5 p-1.5">
+          <div className="mb-9 grid grid-cols-2 gap-2 rounded-2xl bg-black/5 p-1.5 dark:bg-white/5 sm:mb-12">
             <button
               type="button"
               onClick={() => setActiveTab('message')}
@@ -300,11 +300,11 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
           </div>
         )}
 
-        <form onSubmit={activeTab === 'meeting' ? handleMeetingSubmit : handleMessageSubmit} className="space-y-6">
+        <form onSubmit={activeTab === 'meeting' ? handleMeetingSubmit : handleMessageSubmit} className="flex flex-col gap-6 sm:gap-8">
           <input
             type="text"
             placeholder="Name"
-            className="w-full rounded-2xl border border-transparent bg-black/5 p-4 outline-none focus:border-blue-500 dark:bg-white/5"
+            className="w-full rounded-2xl border border-black/10 bg-black/5 p-3.5 outline-none transition-colors focus:border-blue-500 dark:border-white/10 dark:bg-white/5 sm:p-4"
             required
             value={activeTab === 'meeting' ? meetingData.name : formData.name}
             onChange={(event) => (
@@ -317,7 +317,7 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
           <input
             type="email"
             placeholder="Email"
-            className="w-full rounded-2xl border border-transparent bg-black/5 p-4 outline-none focus:border-blue-500 dark:bg-white/5"
+            className="w-full rounded-2xl border border-black/10 bg-black/5 p-3.5 outline-none transition-colors focus:border-blue-500 dark:border-white/10 dark:bg-white/5 sm:p-4"
             required
             value={activeTab === 'meeting' ? meetingData.email : formData.email}
             onChange={(event) => (
@@ -330,62 +330,64 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
           {activeTab === 'message' ? (
             <textarea
               placeholder="Tell Mahmoud a little about the role, product, or help you need."
-              className="h-40 w-full resize-none rounded-2xl border border-transparent bg-black/5 p-4 leading-7 outline-none focus:border-blue-500 dark:bg-white/5"
+              className="h-36 w-full resize-none rounded-2xl border border-black/10 bg-black/5 p-3.5 leading-7 outline-none transition-colors focus:border-blue-500 dark:border-white/10 dark:bg-white/5 sm:h-44 sm:p-4"
               required
               value={formData.message}
               onChange={(event) => setFormData((prev) => ({ ...prev, message: event.target.value }))}
             />
           ) : (
-            <div className="space-y-5">
-              <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-5 py-4 text-sm text-sec">
-                <div className="font-semibold text-primary">Requested date</div>
-                <div className="mt-2">{selectedDateLabel}</div>
-              </div>
+            <div className="rounded-[24px] border border-black/10 bg-black/[0.03] p-5 dark:border-white/10 dark:bg-white/[0.04] sm:p-6">
+              <div className="grid gap-6 sm:gap-7">
+                <div className="rounded-2xl border border-black/10 bg-white/35 px-4 py-3 text-sm text-sec dark:border-white/10 dark:bg-white/5 sm:px-5 sm:py-4">
+                  <div className="font-semibold text-primary">Requested date</div>
+                  <div className="mt-2">{selectedDateLabel}</div>
+                </div>
 
-              <input
-                type="text"
-                placeholder="What is this meeting about?"
-                className="w-full rounded-2xl border border-transparent bg-black/5 p-4 outline-none focus:border-blue-500 dark:bg-white/5"
-                value={meetingData.reason}
-                onChange={(event) => setMeetingData((prev) => ({ ...prev, reason: event.target.value }))}
-              />
+                <input
+                  type="text"
+                  placeholder="What is this meeting about?"
+                  className="w-full rounded-2xl border border-black/10 bg-white/35 p-3.5 outline-none transition-colors focus:border-blue-500 dark:border-white/10 dark:bg-white/5 sm:p-4"
+                  value={meetingData.reason}
+                  onChange={(event) => setMeetingData((prev) => ({ ...prev, reason: event.target.value }))}
+                />
 
-              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-                {timeSlots.map((slot) => {
-                  const userSlot = convertTimeToUser(slot);
-                  const isTaken = takenSlots.includes(userSlot);
+                <div className="grid grid-cols-2 gap-4 pt-1 sm:grid-cols-4 sm:gap-5 sm:pt-2">
+                  {timeSlots.map((slot) => {
+                    const userSlot = convertTimeToUser(slot);
+                    const isTaken = takenSlots.includes(userSlot);
 
-                  return (
-                    <button
-                      key={slot}
-                      type="button"
-                      disabled={isTaken}
-                      onClick={() => setSelectedTime(userSlot)}
-                      className={`rounded-xl border p-3 text-xs font-bold transition-all ${
-                        selectedTime === userSlot
-                          ? 'bg-blue-500 text-white border-blue-500'
-                          : isTaken
-                            ? 'border-black/5 dark:border-white/5 text-muted opacity-50 cursor-not-allowed'
-                            : 'border-black/10 dark:border-white/10 hover:border-blue-500'
-                      }`}
-                    >
-                      {userSlot}
-                    </button>
-                  );
-                })}
+                    return (
+                      <button
+                        key={slot}
+                        type="button"
+                        disabled={isTaken}
+                        onClick={() => setSelectedTime(userSlot)}
+                        className={`rounded-xl border p-3 text-xs font-bold transition-all sm:p-3.5 ${
+                          selectedTime === userSlot
+                            ? 'bg-blue-500 text-white border-blue-500'
+                            : isTaken
+                              ? 'border-black/5 dark:border-white/5 text-muted opacity-50 cursor-not-allowed'
+                              : 'border-black/10 dark:border-white/10 hover:border-blue-500'
+                        }`}
+                      >
+                        {userSlot}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
 
-          <div className="grid gap-3 md:grid-cols-2">
-            <a href={`mailto:${personalInfo.email}`} className="rounded-2xl border border-black/10 bg-black/5 px-5 py-4 text-sm text-sec dark:border-white/10 dark:bg-white/5">
+          <div className="grid gap-5 md:grid-cols-2 md:gap-6">
+            <a href={`mailto:${personalInfo.email}`} className="group flex min-h-[110px] flex-col justify-between rounded-[22px] border border-black/10 bg-black/5 px-5 py-5 text-sm text-sec transition-all hover:border-blue-500/20 hover:bg-blue-500/[0.02] dark:border-white/10 dark:bg-white/5 sm:min-h-[130px] sm:px-6 sm:py-6">
               <div className="flex items-center gap-2 font-semibold text-primary">
                 <Mail size={16} className="text-blue-500" />
                 Email
               </div>
-              <div className="mt-3 break-all">{personalInfo.email}</div>
+              <div className="mt-3 break-all text-sm font-bold transition-colors group-hover:text-blue-500">{personalInfo.email}</div>
             </a>
-            <a href={`tel:${personalInfo.phone.replace(/\s+/g, '')}`} className="rounded-2xl border border-black/10 bg-black/5 px-5 py-4 text-sm text-sec dark:border-white/10 dark:bg-white/5">
+            <a href={`tel:${personalInfo.phone.replace(/\s+/g, '')}`} className="rounded-[22px] border border-black/10 bg-black/5 px-5 py-5 text-sm text-sec transition-all hover:border-blue-500/20 hover:bg-blue-500/[0.02] dark:border-white/10 dark:bg-white/5 sm:px-6 sm:py-6">
               <div className="flex items-center gap-2 font-semibold text-primary">
                 <PhoneCall size={16} className="text-blue-500" />
                 Call Mahmoud
@@ -394,7 +396,7 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
             </a>
           </div>
 
-          <button type="submit" disabled={isSubmitting} className="w-full rounded-2xl bg-blue-500 py-4 text-white font-bold flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors disabled:opacity-70">
+          <button type="submit" disabled={isSubmitting} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-500 py-4 font-bold text-white transition-colors hover:bg-blue-600 disabled:opacity-70 sm:py-4">
             {isSubmitting
               ? 'Sending...'
               : activeTab === 'meeting'

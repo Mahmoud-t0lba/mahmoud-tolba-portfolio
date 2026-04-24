@@ -31,6 +31,26 @@ const GlassPanel = ({ children, style, className = "", isDark }: React.PropsWith
     </div>
 );
 
+const hasUsefulMetricValue = (value: unknown) => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'number') return value > 0;
+
+    const normalized = String(value).trim().toLowerCase();
+    if (!normalized) return false;
+    if (['0', '0+', '0.0', 'n/a', 'na', 'none', 'not available', 'not publicly available'].includes(normalized)) {
+        return false;
+    }
+
+    const numeric = Number.parseFloat(normalized.replace(/,/g, ''));
+    if (!Number.isNaN(numeric) && numeric === 0) return false;
+
+    return true;
+};
+
+const getPositiveCount = (value: unknown) => {
+    return typeof value === 'number' && value > 0 ? value : null;
+};
+
 const VideoPlayer = React.memo(({ src, isActive, isMobile, style }: { src: string, isActive: boolean, isMobile: boolean, style?: React.CSSProperties }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -592,6 +612,14 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
 
     const displayTitle = (project.title || project.name || 'Untitled Project').toUpperCase();
     const displayFullDescription = project.fullDescription || project.description || 'No description available.';
+    const usefulStoreStats = project.stats
+        ? Object.entries(project.stats).filter(([key, value]) => key !== 'lastUpdated' && hasUsefulMetricValue(value))
+        : [];
+    const engagementItems = [
+        { label: 'Live', value: getPositiveCount(project.liveViews) },
+        { label: 'Downloads', value: getPositiveCount(project.downloadViews) },
+        { label: 'Views', value: getPositiveCount(project.views) }
+    ].filter((item): item is { label: string; value: number } => item.value !== null);
 
     const displayTags = (project.tags && project.tags.length > 0)
         ? project.tags.map(t => {
@@ -788,146 +816,95 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
                 >
-                    {/* Hero Showcase Section */}
-                    <div style={{
-                        position: 'relative', width: '100%',
-                        height: '100vh', minHeight: '100vh',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        padding: '20px'
-                    }}>
-                        {/* Big Decorative Title */}
-                        <div style={{
-                            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                            fontSize: isMobile ? '20vw' : '12vw', fontWeight: 950, color: 'white',
-                            opacity: isMobile ? 0.02 : 0.03, whiteSpace: 'nowrap', pointerEvents: 'none',
-                            zIndex: 0, userSelect: 'none', letterSpacing: '-0.07em'
-                        }}>{displayTitle}</div>
-                        {/* Main Image Spotlight - Shared Element */}
-                        {/* Box shadow wrapper - not part of layout animation */}
-                        <div style={{
-                            position: 'relative',
-                            width: isMobile ? '100%' : '85%',
-                            maxWidth: '1200px',
-                            maxHeight: '80vh', // Prevent vertical overflow
-                            zIndex: 1,
-                            borderRadius: isMobile ? '16px' : '32px',
-                            boxShadow: '0 50px 100px rgba(0,0,0,0.5)',
-                            display: 'flex',
-                            flexDirection: 'column'
-                        }}>
-                            <motion.div
-                                onMouseEnter={() => setIsHovered(true)}
-                                onMouseLeave={() => setIsHovered(false)}
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.4, ease: "easeOut" }}
-                                style={{
-                                    position: 'relative',
-                                    width: '100%',
-                                    height: 'auto',
-                                    aspectRatio: isMobile ? '16/9' : '16/9',
-                                    maxHeight: '80vh',
-                                    borderRadius: isMobile ? '16px' : '32px',
-                                    overflow: 'hidden',
-                                    background: '#000',
-                                    willChange: 'transform' // Ensure hardware acceleration
-                                }}
-                            >
-                                <div style={{ position: 'absolute', inset: 0 }}>
-                                    {sortedMedia.length > 0 ? (
-                                        sortedMedia.map((media, i) => (
-                                            <div key={i} style={{
-                                                position: 'absolute', inset: 0,
-                                                opacity: i === currentImageIndex ? 1 : 0,
-                                                transform: i === currentImageIndex ? 'scale(1)' : 'scale(1.08)',
-                                                transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                                                pointerEvents: i === currentImageIndex ? 'auto' : 'none',
-                                                zIndex: i === currentImageIndex
-                                                    ? (isVideoFile(media) ? 3 : 1)
-                                                    : 0
-                                            }}>
-                                                {isVideoFile(media) ? (
-                                                    <VideoPlayer src={media} isActive={i === currentImageIndex} isMobile={isMobile} />
-                                                ) : (
-                                                    <ProjectMediaImage src={media} />
-                                                )}
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <ProjectMediaPlaceholder project={project} />
-                                    )}
-                                </div>
 
-                                {/* Manual Nav Controls */}
-                                {sortedMedia.length > 1 && (
-                                    <>
-                                        <button onClick={handlePrev} style={{
-                                            position: 'absolute', left: isMobile ? '4px' : '30px', top: '50%', transform: 'translateY(-50%)',
-                                            width: isMobile ? '32px' : '60px', height: isMobile ? '32px' : '60px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)',
-                                            backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', color: 'white',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-                                            zIndex: 8, transition: 'all 0.3s'
-                                        }}>
-                                            <ChevronLeft size={isMobile ? 16 : 28} />
-                                        </button>
-                                        <button onClick={handleNext} style={{
-                                            position: 'absolute', right: isMobile ? '4px' : '30px', top: '50%', transform: 'translateY(-50%)',
-                                            width: isMobile ? '32px' : '60px', height: isMobile ? '32px' : '60px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)',
-                                            backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', color: 'white',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-                                            zIndex: 8, transition: 'all 0.3s'
-                                        }}>
-                                            <ChevronRight size={isMobile ? 16 : 28} />
-                                        </button>
-                                    </>
-                                )}
-
-                                {/* Indicator Dots (Hidden on mobile to save space) */}
-                                {!isMobile && (
-                                    <div style={{ position: 'absolute', bottom: '30px', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '12px', zIndex: 2 }}>
-                                        {sortedMedia.map((_, i) => (
-                                            <div key={i} onClick={() => setCurrentImageIndex(i)} style={{
-                                                width: i === currentImageIndex ? '40px' : '10px', height: '10px', borderRadius: '5px',
-                                                background: 'white', opacity: i === currentImageIndex ? 1 : 0.3,
-                                                cursor: 'pointer', transition: 'all 0.4s'
-                                            }} />
-                                        ))}
-                                    </div>
-                                )}
-                            </motion.div>
-                        </div>
-
-                        {/* Scroll for More Indicator */}
-                        <div style={{
-                            position: 'absolute', bottom: isMobile ? '30px' : '40px', left: '50%', transform: 'translateX(-50%)',
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px',
-                            color: 'rgba(255,255,255,0.5)', zIndex: 10, pointerEvents: 'none',
-                            animation: 'fadeIn 1s ease-out 1.5s both'
-                        }}>
-                            <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.25em' }}>Scroll for more</span>
-                            <div style={{
-                                width: '24px', height: '42px', borderRadius: '15px', border: '2px solid rgba(255,255,255,0.2)',
-                                display: 'flex', justifyContent: 'center', padding: '6px'
-                            }}>
-                                <div style={{
-                                    width: '2px', height: '8px', borderRadius: '2px', background: '#60a5fa',
-                                    animation: 'scrollWheel 1.5s ease-in-out infinite',
-                                    boxShadow: '0 0 10px #60a5fa'
-                                }} />
-                            </div>
-                        </div>
-                    </div>
 
                     {/* Content Matrix */}
                     <div style={{
                         display: 'grid',
                         gridTemplateColumns: isMobile ? '1fr' : '1.8fr 1fr',
-                        gap: '40px',
+                        gap: isMobile ? '20px' : '40px',
                         position: 'relative', zIndex: 2,
-                        padding: isMobile ? '20px' : '0 0 60px 0',
-                        marginTop: isMobile ? '0' : '40px'
+                        padding: isMobile ? '60px 20px 60px 20px' : '100px 0 60px 0',
+                        marginTop: isMobile ? '0' : '0'
                     }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '20px' : '40px' }}>
+                            <div style={{
+                                position: 'relative',
+                                width: '100%',
+                                zIndex: 1,
+                                borderRadius: isMobile ? '16px' : '32px',
+                                boxShadow: '0 50px 100px rgba(0,0,0,0.5)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                marginBottom: isMobile ? '20px' : '40px'
+                            }}>
+                                <motion.div
+                                    onMouseEnter={() => setIsHovered(true)}
+                                    onMouseLeave={() => setIsHovered(false)}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.4, ease: "easeOut" }}
+                                    style={{
+                                        position: 'relative',
+                                        width: '100%',
+                                        height: 'auto',
+                                        aspectRatio: isMobile ? '16/9' : '16/9',
+                                        borderRadius: isMobile ? '16px' : '32px',
+                                        overflow: 'hidden',
+                                        background: '#000',
+                                        willChange: 'transform'
+                                    }}
+                                >
+                                    <div style={{ position: 'absolute', inset: 0 }}>
+                                        {sortedMedia.length > 0 ? (
+                                            sortedMedia.map((media, i) => (
+                                                <div key={i} style={{
+                                                    position: 'absolute', inset: 0,
+                                                    opacity: i === currentImageIndex ? 1 : 0,
+                                                    transform: i === currentImageIndex ? 'scale(1)' : 'scale(1.08)',
+                                                    transition: 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                                                    pointerEvents: i === currentImageIndex ? 'auto' : 'none',
+                                                    zIndex: i === currentImageIndex
+                                                        ? (isVideoFile(media) ? 3 : 1)
+                                                        : 0
+                                                }}>
+                                                    {isVideoFile(media) ? (
+                                                        <VideoPlayer src={media} isActive={i === currentImageIndex} isMobile={isMobile} />
+                                                    ) : (
+                                                        <ProjectMediaImage src={media} />
+                                                    )}
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <ProjectMediaPlaceholder project={project} />
+                                        )}
+                                    </div>
+
+                                    {sortedMedia.length > 1 && (
+                                        <>
+                                            <button onClick={handlePrev} style={{
+                                                position: 'absolute', left: isMobile ? '4px' : '30px', top: '50%', transform: 'translateY(-50%)',
+                                                width: isMobile ? '32px' : '60px', height: isMobile ? '32px' : '60px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)',
+                                                backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', color: 'white',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                                                zIndex: 8, transition: 'all 0.3s'
+                                            }}>
+                                                <ChevronLeft size={isMobile ? 16 : 28} />
+                                            </button>
+                                            <button onClick={handleNext} style={{
+                                                position: 'absolute', right: isMobile ? '4px' : '30px', top: '50%', transform: 'translateY(-50%)',
+                                                width: isMobile ? '32px' : '60px', height: isMobile ? '32px' : '60px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)',
+                                                backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', color: 'white',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                                                zIndex: 8, transition: 'all 0.3s'
+                                            }}>
+                                                <ChevronRight size={isMobile ? 16 : 28} />
+                                            </button>
+                                        </>
+                                    )}
+                                </motion.div>
+                            </div>
+
                             <GlassPanel isDark={isDark}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
                                     <div style={{ padding: '6px 14px', background: 'rgba(96,165,250,0.15)', color: '#60a5fa', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.1em' }}>More Details</div>
@@ -935,14 +912,51 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
                                     <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>Project ID: #{project.id?.toString().slice(-6).toUpperCase() || 'UNKNOWN'}</div>
                                 </div>
                                 <h1 style={{
-                                    margin: 0, fontSize: isMobile ? (windowWidth < 480 ? '2.2rem' : '3.2rem') : '5rem', fontWeight: 950,
+                                    margin: 0, fontSize: isMobile ? (windowWidth < 480 ? '1.8rem' : '2.5rem') : '4rem', fontWeight: 950,
                                     color: 'white', letterSpacing: '-0.05em', lineHeight: 1.1, marginBottom: '24px',
                                     textTransform: 'uppercase'
                                 }}>{displayTitle}</h1>
                                 <p style={{
-                                    margin: 0, fontSize: '1.35rem', lineHeight: 1.7, color: 'rgba(255,255,255,0.75)',
-                                    fontWeight: 400, borderLeft: '3px solid #60a5fa', paddingLeft: '24px'
+                                    margin: 0, fontSize: isMobile ? '1.1rem' : '1.35rem', lineHeight: 1.7, color: 'rgba(255,255,255,0.75)',
+                                    fontWeight: 400, borderLeft: '3px solid #60a5fa', paddingLeft: isMobile ? '16px' : '24px'
                                 }}>{displayFullDescription}</p>
+
+                                {/* Project Stats Section */}
+                                {usefulStoreStats.length > 0 && (
+                                    <>
+                                        <div style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : `repeat(${Math.min(usefulStoreStats.length, 4)}, 1fr)`,
+                                            gap: '12px',
+                                            marginTop: '32px',
+                                            padding: '20px',
+                                            background: 'rgba(255,255,255,0.03)',
+                                            borderRadius: '24px',
+                                            border: '1px solid rgba(255,255,255,0.08)'
+                                        }}>
+                                            {usefulStoreStats.map(([key, value]) => (
+                                                <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)' }}>{key}</span>
+                                                    <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#60a5fa' }}>{value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+                                            <div style={{ 
+                                                padding: '4px 10px', 
+                                                background: 'rgba(255,255,255,0.05)', 
+                                                borderRadius: '8px', 
+                                                border: '1px solid rgba(255,255,255,0.1)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '6px'
+                                            }}>
+                                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }} />
+                                                <span style={{ fontSize: '0.6rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.5)' }}>Verified Store Data</span>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </GlassPanel>
 
                             {((project.contextHighlights && project.contextHighlights.length > 0) || (project.contributionHighlights && project.contributionHighlights.length > 0)) && (
@@ -1176,49 +1190,29 @@ const MProjectView = ({ project: initialProject, onClose, onContributorClick }: 
                             </div>
 
                             {/* Analytics Panel */}
-                            <div style={{
-                                padding: '30px', borderRadius: '32px', background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-                                border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '25px'
-                            }}>
-                                <h3 style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)' }}>Engagements</h3>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
-                                    <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <div style={{ marginBottom: '8px' }}>
-                                            <span style={{ fontSize: '30px', fontWeight: 950, color: 'white' }}>
-                                                {typeof project.githubViews === 'number' ? project.githubViews : 0}
-                                            </span>
-                                        </div>
-                                        <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Github</div>
+                            {engagementItems.length > 0 && (
+                                <div style={{
+                                    padding: '30px', borderRadius: '32px', background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+                                    border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '25px'
+                                }}>
+                                    <h3 style={{ margin: 0, fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)' }}>Engagements</h3>
+                                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${engagementItems.length}, 1fr)`, gap: '15px' }}>
+                                        {engagementItems.map((item, index) => (
+                                            <div key={item.label} style={{ textAlign: 'center', borderLeft: index > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                <div style={{ marginBottom: '8px' }}>
+                                                    <span style={{ fontSize: '30px', fontWeight: 950, color: 'white' }}>
+                                                        {item.value}
+                                                    </span>
+                                                </div>
+                                                <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.15em' }}>{item.label}</div>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <div style={{ textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <div style={{ marginBottom: '8px' }}>
-                                            <span style={{ fontSize: '30px', fontWeight: 950, color: 'white' }}>
-                                                {typeof project.liveViews === 'number' ? project.liveViews : 0}
-                                            </span>
-                                        </div>
-                                        <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Live</div>
-                                    </div>
-                                    <div style={{ textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <div style={{ marginBottom: '8px' }}>
-                                            <span style={{ fontSize: '30px', fontWeight: 950, color: 'white' }}>
-                                                {typeof project.downloadViews === 'number' ? project.downloadViews : 0}
-                                            </span>
-                                        </div>
-                                        <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Downloads</div>
-                                    </div>
-                                    <div style={{ textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <div style={{ marginBottom: '8px' }}>
-                                            <span style={{ fontSize: '30px', fontWeight: 950, color: 'white' }}>
-                                                {typeof project.views === 'number' ? project.views : 0}
-                                            </span>
-                                        </div>
-                                        <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Views</div>
+                                    <div style={{ height: '4px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden', marginTop: '5px' }}>
+                                        <div style={{ height: '100%', width: '100%', background: 'linear-gradient(to right, #60a5fa, #3b82f6)', borderRadius: '2px', boxShadow: '0 0 15px rgba(96,165,250,0.5)' }} />
                                     </div>
                                 </div>
-                                <div style={{ height: '4px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden', marginTop: '5px' }}>
-                                    <div style={{ height: '100%', width: '100%', background: 'linear-gradient(to right, #60a5fa, #3b82f6)', borderRadius: '2px', boxShadow: '0 0 15px rgba(96,165,250,0.5)' }} />
-                                </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </motion.div>

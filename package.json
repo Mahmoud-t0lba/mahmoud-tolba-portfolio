@@ -12,7 +12,9 @@
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.2",
     "animejs": "^3.2.2",
+    "app-store-scraper": "^0.18.0",
     "firebase": "^12.6.0",
+    "google-play-scraper": "^10.1.2",
     "lucide-react": "^0.555.0",
     "motion": "^12.24.7",
     "next": "^16.2.4",

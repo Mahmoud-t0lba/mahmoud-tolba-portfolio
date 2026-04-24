@@ -1,5 +1,29 @@
 import { ProjectData, TagData } from '../types';
 import { withBasePath } from '../lib/site';
+import appStats from './appStats.json';
+
+// Helper to get real stats for a project
+const getStats = (id: string, defaultStats: any = {}) => {
+    const statsMap: Record<string, string> = {
+        'by-bus': 'bybus',
+        'engineering-tracks': 'engtracks',
+        'a-plus': 'aplus',
+    };
+    const statsId = statsMap[id] || id;
+    const realStats = (appStats as any)[statsId];
+
+    if (!realStats) return defaultStats;
+
+    // Merge real stats, prioritizing accuracy as per user request
+    return {
+        ...defaultStats,
+        downloads: realStats.downloads,
+        rating: realStats.rating,
+        reviews: realStats.reviews,
+        // Remove fake/estimated stats
+        // likes: undefined
+    };
+};
 
 export const personalInfo = {
     name: 'Mahmoud Tolba',
@@ -14,7 +38,7 @@ export const personalInfo = {
     bio: 'Mahmoud is a Senior Flutter Developer with 5+ years of experience delivering mobile products across transport, social, education, utility, and commerce-focused domains. He specializes in scalable Flutter architecture, state management, API integration, polished product execution, and reliable delivery, while also bringing a React Native background and light iOS/Android native exposure for integration-heavy work.',
     availability: '80%',
     currentTime: 'UTC+02:00',
-    resumeUrl: 'https://mahmoud-t0lba.github.io/portfolio/cv/mahmoud-tolba-cv.pdf',
+    resumeUrl: 'https://drive.google.com/file/d/1Wr35AlPkBnKGMXd4YxZh5YehrwBnOgXo/view?usp=sharing',
     heroImageUrl: withBasePath('/profile.png'),
     heroImageAlt: 'Portrait of Mahmoud Tolba',
     heroSideLabel: '5+ Years',
@@ -130,22 +154,10 @@ export const techStack: TagData[] = [
         summary: 'Swift, Kotlin, platform channels, and SDK configuration for integration-heavy mobile work.'
     },
     {
-        name: 'iOS SwiftUI',
+        name: 'iOS & Android Native',
         color: '#0A84FF',
-        skillIcon: 'swift',
-        summary: 'SwiftUI exposure for native iOS screens, platform-specific UI, and Flutter-to-iOS integration points.'
-    },
-    {
-        name: 'Android Kotlin',
-        color: '#7F52FF',
-        skillIcon: 'kotlin',
-        summary: 'Kotlin experience for Android-native modules, SDK setup, platform channels, and integration-heavy features.'
-    },
-    {
-        name: 'Kotlin Jetpack',
-        color: '#3DDC84',
-        skillIcon: 'kotlin',
-        summary: 'Jetpack-aware Android work across lifecycle, modern Android patterns, and native integration support.'
+        skillIcon: 'swift,kotlin',
+        summary: 'Foundational native exposure (less than 1 year) used as a supportive background for platform channels, SDK setup, and Flutter-to-native integration.'
     },
     {
         name: 'SDK Integration',
@@ -307,6 +319,7 @@ export const projects: ProjectData[] = [
         repoLink: '',
         liveLink: 'https://apps.apple.com/eg/app/by-bus/id6504498504',
         downloadLink: 'https://play.google.com/store/apps/details?id=com.bybus.passenger',
+        stats: getStats('by-bus'),
         listing: 1
     },
     {
@@ -334,6 +347,7 @@ export const projects: ProjectData[] = [
         ],
         repoLink: '',
         liveLink: '',
+        stats: getStats('ajlakum'),
         listing: 2
     },
     {
@@ -365,6 +379,7 @@ export const projects: ProjectData[] = [
         repoLink: '',
         liveLink: 'https://apps.apple.com/eg/app/sawa/id1645381223',
         downloadLink: 'https://play.google.com/store/apps/details?id=com.fusion.sawa',
+        stats: getStats('sawa'),
         listing: 3
     },
     {
@@ -396,6 +411,7 @@ export const projects: ProjectData[] = [
         repoLink: '',
         liveLink: 'https://apps.apple.com/eg/app/wird-%D9%88-%D8%B1%D8%AF/id6759871577',
         downloadLink: 'https://play.google.com/store/apps/details?id=com.quran.wird',
+        stats: getStats('wird'),
         listing: 4
     },
     {
@@ -427,6 +443,7 @@ export const projects: ProjectData[] = [
         repoLink: '',
         liveLink: 'https://apps.apple.com/eg/app/kumquaty/id6471918075',
         downloadLink: 'https://play.google.com/store/apps/details?id=com.kian.kumquatyUser',
+        stats: getStats('kumquaty'),
         listing: 5
     },
     {
@@ -457,6 +474,7 @@ export const projects: ProjectData[] = [
         repoLink: '',
         liveLink: '',
         downloadLink: 'https://play.google.com/store/apps/details?id=sa.aait.aspbranch.hassanat',
+        stats: getStats('sadakat'),
         listing: 6
     },
     {
@@ -488,6 +506,7 @@ export const projects: ProjectData[] = [
         repoLink: '',
         liveLink: 'https://apps.apple.com/eg/app/engineering-tracks/id1543736435',
         downloadLink: 'https://play.google.com/store/apps/details?id=com.phonegap.engTracks',
+        stats: getStats('engineering-tracks'),
         listing: 7
     },
     {
@@ -518,6 +537,7 @@ export const projects: ProjectData[] = [
         repoLink: '',
         liveLink: 'https://apps.apple.com/eg/app/a-plus/id1543956025',
         downloadLink: 'https://play.google.com/store/apps/details?id=com.sellx.aplus_student',
+        stats: getStats('a-plus'),
         listing: 8
     },
     {
@@ -545,6 +565,7 @@ export const projects: ProjectData[] = [
         ],
         repoLink: '',
         liveLink: '',
+        stats: getStats('maktabi-plus'),
         listing: 9
     },
     {
@@ -577,6 +598,7 @@ export const projects: ProjectData[] = [
         repoLink: '',
         liveLink: 'https://apps.apple.com/eg/app/teksa/id6483865247',
         downloadLink: 'https://play.google.com/store/apps/details?id=com.Teksa.teksa',
+        stats: getStats('teksa'),
         listing: 10
     },
     {
@@ -606,6 +628,7 @@ export const projects: ProjectData[] = [
         ],
         repoLink: '',
         liveLink: 'https://apps.apple.com/iq/app/gene/id6743855109?l=ar',
+        stats: getStats('gene'),
         listing: 11
     },
     {
@@ -635,6 +658,7 @@ export const projects: ProjectData[] = [
         ],
         repoLink: '',
         liveLink: 'https://apps.apple.com/iq/app/%D8%B4%D9%87%D9%8A%D8%A9/id6744401579?l=ar',
+        stats: getStats('shahia'),
         listing: 12
     }
 ];

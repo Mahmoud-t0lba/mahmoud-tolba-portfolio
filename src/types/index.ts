@@ -51,6 +51,11 @@ export interface ProjectData {
     githubViews?: number;
     liveViews?: number;
     downloadViews?: number;
+    stats?: {
+        downloads?: string;
+        rating?: string;
+        reviews?: string;
+    };
     listing?: number;
 }
 

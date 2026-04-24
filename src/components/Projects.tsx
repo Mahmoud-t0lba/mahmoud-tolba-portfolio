@@ -66,12 +66,12 @@ const CardImage = ({ src, alt }: { src: string; alt: string }) => {
         <>
             {/* shimmer-fast keyframes are in globals.css */}
             {/* Skeleton Loader Container */}
-            <div 
+            <div
                 className={`absolute inset-0 z-10 bg-white/5 overflow-hidden transition-opacity duration-1000 ease-out ${isImageLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
             >
                 {/* Moving Light effect - only rendered when loading to stop the animation when complete */}
                 {!isImageLoaded && (
-                    <div 
+                    <div
                         className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
                         style={{ animation: 'shimmer-fast 1.2s infinite ease-in-out' }}
                     />
@@ -133,12 +133,36 @@ const ProjectPlaceholder = ({ project }: { project: Project }) => {
     );
 };
 
+const hasUsefulStatValue = (value: unknown) => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'number') return value > 0;
+
+    const normalized = String(value).trim().toLowerCase();
+    if (!normalized) return false;
+    if (['0', '0+', '0.0', 'n/a', 'na', 'none', 'not available', 'not publicly available'].includes(normalized)) {
+        return false;
+    }
+
+    const numeric = Number.parseFloat(normalized.replace(/,/g, ''));
+    if (!Number.isNaN(numeric) && numeric === 0) return false;
+
+    return true;
+};
+
 const ProjectCard = ({ project, index, onClick }: { project: Project; index: number; onClick: () => void }) => {
     const cardRef = useRef<HTMLDivElement>(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const [showContributors, setShowContributors] = useState(false);
     const mediaItems = project.images.length > 0 ? project.images : ['__placeholder__'];
+    const usefulStats = project.stats
+        ? {
+            downloads: hasUsefulStatValue(project.stats.downloads) ? project.stats.downloads : undefined,
+            rating: hasUsefulStatValue(project.stats.rating) ? project.stats.rating : undefined,
+            reviews: hasUsefulStatValue(project.stats.reviews) ? project.stats.reviews : undefined
+        }
+        : null;
+    const hasUsefulStats = !!usefulStats && Object.values(usefulStats).some(Boolean);
 
     // Slideshow logic (Card Hover)
     useEffect(() => {
@@ -193,7 +217,7 @@ const ProjectCard = ({ project, index, onClick }: { project: Project; index: num
             `}
             style={{ willChange: 'transform, opacity' }}
         >
-            <div className="relative h-[200px] overflow-hidden rounded-t-[20px] will-change-transform">
+            <div className="relative h-[126px] overflow-hidden rounded-t-[18px] will-change-transform sm:h-[190px] sm:rounded-t-[20px] lg:h-[210px]">
                 {/* Slideshow Overlay */}
                 <div
                     className="absolute inset-0"
@@ -225,7 +249,7 @@ const ProjectCard = ({ project, index, onClick }: { project: Project; index: num
                 </div>
 
                 {/* Overlays: Tags / Contributors Slideshow */}
-                <div className="absolute top-4 left-4 z-10">
+                <div className="absolute left-2 top-2 z-10 sm:left-4 sm:top-4">
                     <AnimatePresence mode="wait">
                         {!showContributors ? (
                             <motion.div
@@ -234,19 +258,19 @@ const ProjectCard = ({ project, index, onClick }: { project: Project; index: num
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 10 }}
                                 transition={{ duration: 0.3 }}
-                                className="flex gap-1.5 flex-wrap"
+                                className="flex gap-1 flex-wrap sm:gap-1.5"
                             >
                                 {(project.tags || []).slice(0, 2).map((tag: Tag, i) => (
                                     <div
                                         key={i}
-                                        className="px-2.5 py-1 rounded-full bg-white/40 backdrop-blur-md text-xs font-semibold text-gray-800 shadow-sm flex items-center gap-1"
+                                        className="rounded-full bg-white/40 px-2 py-0.5 text-[10px] font-semibold text-gray-800 shadow-sm backdrop-blur-md flex items-center gap-1 sm:px-2.5 sm:py-1 sm:text-xs"
                                     >
                                         <div className="w-1.5 h-1.5 rounded-full" style={{ background: tag.color || '#3b82f6' }} />
                                         {tag.name}
                                     </div>
                                 ))}
                                 {(project.tags || []).length > 2 && (
-                                    <div className="px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md text-xs font-semibold text-white shadow-sm">
+                                    <div className="rounded-full bg-black/40 px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm backdrop-blur-md sm:px-2.5 sm:py-1 sm:text-xs">
                                         +{(project.tags || []).length - 2} More
                                     </div>
                                 )}
@@ -286,14 +310,57 @@ const ProjectCard = ({ project, index, onClick }: { project: Project; index: num
                         )}
                     </AnimatePresence>
                 </div>
+
+                {/* Stats Overlay - NEW */}
+                {hasUsefulStats && usefulStats && (
+                    <div className="absolute bottom-2 left-2 right-2 z-10 flex justify-between items-end sm:bottom-4 sm:left-4 sm:right-4">
+                        <div className="flex gap-2 sm:gap-4">
+                            {usefulStats.downloads && (
+                                <div className="flex flex-col">
+                                    <span className="hidden text-[9px] font-black uppercase tracking-widest text-white/40 sm:block">Installs</span>
+                                    <span className={`font-black text-white leading-none ${usefulStats.downloads.length > 8 ? 'text-[9px] sm:text-[10px]' : 'text-[11px] sm:text-sm'}`}>
+                                        {usefulStats.downloads}
+                                    </span>
+                                </div>
+                            )}
+                            {usefulStats.rating && (
+                                <div className="flex flex-col">
+                                    <span className="hidden text-[9px] font-black uppercase tracking-widest text-white/40 sm:block">Rating</span>
+                                    <span className="text-[11px] font-black leading-none text-white sm:text-sm">★ {usefulStats.rating}</span>
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                            {usefulStats.reviews && (
+                                <div className="flex flex-col items-end">
+                                    <span className="hidden text-[9px] font-black uppercase tracking-widest text-white/40 sm:block">Reviews</span>
+                                    <span className="text-[11px] font-black leading-none text-white sm:text-sm">{usefulStats.reviews}</span>
+                                </div>
+                            )}
+                            <div className="hidden rounded border border-white/10 bg-white/10 px-1.5 py-0.5 backdrop-blur-md sm:block">
+                                <span className="text-[7px] font-black text-white/60 uppercase tracking-[0.2em]">Verified Store Data</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
-            <div className="p-6 flex flex-col flex-1">
-                <h3 className="heading-md mb-2.5 text-primary">
-                    {project.title}
+            <div className="flex flex-col flex-1 p-3 sm:p-6">
+                <div className="mb-1.5 flex items-center justify-between gap-2 sm:mb-2">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500">
+                        {project.category || 'Mobile App'}
+                    </span>
+                    <span className="hidden text-[10px] font-bold text-sec sm:block">
+                        {project.platforms?.join(' • ') || 'Mobile'}
+                    </span>
+                </div>
+
+                <h3 className="mb-2 line-clamp-2 text-sm font-black leading-tight tracking-tight text-primary transition-colors group-hover:text-blue-500 sm:mb-3 sm:text-2xl">
+                    {project.title || project.name}
                 </h3>
+
                 <p
-                    className="text-body text-sec leading-relaxed flex-1 overflow-hidden"
+                    className="mb-3 line-clamp-2 flex-1 text-xs leading-5 text-sec sm:mb-6 sm:line-clamp-3 sm:text-sm sm:leading-relaxed"
                     style={{
                         display: '-webkit-box',
                         WebkitLineClamp: 3,
@@ -303,6 +370,21 @@ const ProjectCard = ({ project, index, onClick }: { project: Project; index: num
                 >
                     {project.description}
                 </p>
+
+                <div className="flex items-center justify-between gap-2 border-t border-[var(--navbar-border)] pt-3 sm:pt-4">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <div className="hidden size-8 rounded-full bg-blue-500/10 sm:flex items-center justify-center">
+                            <div className="size-2 rounded-full bg-blue-500 animate-pulse" />
+                        </div>
+                        <div className="flex min-w-0 flex-col">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-primary">Live Product</span>
+                            <span className="hidden text-[9px] font-bold text-sec sm:block">Production Ready</span>
+                        </div>
+                    </div>
+                    <div className="rounded-lg bg-blue-500 px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wider text-white transition-colors group-hover:bg-blue-600 sm:rounded-xl sm:px-4 sm:py-2 sm:text-[11px] sm:tracking-widest">
+                        View
+                    </div>
+                </div>
             </div>
         </motion.div >
     );
@@ -438,10 +520,10 @@ const Projects = () => {
     }, [selectedProjectId, showContributorModal]);
 
     return (
-        <div className="min-h-screen bg-primary transition-colors duration-300 pt-32 pb-20">
-            <div className="page-padding">
+        <div className="min-h-screen bg-primary transition-colors duration-300 pt-28 pb-32 sm:pt-32 sm:pb-48">
+            <div className="page-padding pb-24 sm:pb-32">
                 {/* Header - Reduced MB */}
-                <div className="mb-8 pl-0">
+                <div className="mb-6 pl-0 sm:mb-8">
                     <div
                         ref={handwritingRef}
                         className="text-5xl opacity-0 mb-[-20px] ml-2.5"
@@ -461,15 +543,15 @@ const Projects = () => {
                 </div>
 
                 {/* Search Bar - Reduced MB */}
-                <div className="mb-6 max-w-[600px]">
-                    <div className="glass-surface flex items-center p-3 px-5 border border-[var(--navbar-border)] shadow-md transition-shadow duration-300">
+                <div className="mb-5 max-w-[600px] sm:mb-8">
+                    <div className="glass-surface flex items-center border border-[var(--navbar-border)] p-3 px-4 shadow-md transition-shadow duration-300 sm:px-5">
                         <Search size={20} className="text-sec mr-3" />
                         <input
                             type="text"
                             placeholder="Search by project, company, domain, or capability..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="border-none bg-transparent text-primary text-base w-full outline-none font-inter"
+                            className="w-full border-none bg-transparent text-sm text-primary outline-none font-inter sm:text-base"
                         />
                         {searchQuery && (
                             <button
@@ -484,7 +566,7 @@ const Projects = () => {
 
                 {/* Projects Grid */}
                 {filteredProjects.length > 0 ? (
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] sm:gap-6 lg:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] lg:gap-8 xl:gap-10">
                         {filteredProjects.map((project, index) => (
                             <ProjectCard
                                 key={project.id}

@@ -9,8 +9,8 @@ const shareImage = withBasePath('/og-card.png')
 // eslint-disable-next-line react-refresh/only-export-components
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
-  title: 'Mahmoud Tolba | Senior Flutter Developer',
-  description: 'Senior Flutter Developer with 5+ years of experience building scalable, production-grade mobile apps across Android and iOS.',
+  title: 'Mahmoud Tolba | Senior Flutter Developer / Senior Mobile Developer',
+  description: 'Building high-performance, scalable mobile applications with Flutter. Senior Mobile Developer with 5+ years of production experience.',
   applicationName: 'Mahmoud Tolba Portfolio',
   authors: [{ name: 'Mahmoud Tolba' }],
   alternates: {
@@ -20,14 +20,14 @@ export const metadata: Metadata = {
     'Mahmoud Tolba',
     'Senior Flutter Developer',
     'Senior Mobile Developer',
-    'Flutter',
-    'Android',
-    'iOS',
-    'Mobile Portfolio'
+    'Flutter Expert',
+    'Android Developer',
+    'iOS Developer',
+    'Mobile Application Architecture'
   ],
   openGraph: {
-    title: 'Mahmoud Tolba | Senior Flutter Developer',
-    description: 'Senior Flutter Developer with 5+ years of experience building scalable, production-grade mobile apps across Android and iOS.',
+    title: 'Mahmoud Tolba | Senior Flutter Developer / Senior Mobile Developer',
+    description: 'Building high-performance, scalable mobile applications with Flutter. 5+ years of experience delivering production-grade apps.',
     url: siteUrl,
     siteName: 'Mahmoud Tolba Portfolio',
     type: 'website',
@@ -36,14 +36,14 @@ export const metadata: Metadata = {
         url: shareImage,
         width: 1200,
         height: 630,
-        alt: 'Mahmoud Tolba portfolio preview',
+        alt: 'Mahmoud Tolba - Senior Flutter Developer',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Mahmoud Tolba | Senior Flutter Developer',
-    description: 'Senior Flutter Developer focused on scalable mobile products across Android and iOS.',
+    title: 'Mahmoud Tolba | Senior Flutter Developer / Senior Mobile Developer',
+    description: 'Building high-performance, scalable mobile applications with Flutter.',
     images: [shareImage],
   },
   icons: {

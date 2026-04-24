@@ -43,9 +43,7 @@ const skillIconMap: Record<string, LucideIcon> = {
     'maps & location': MapPinned,
     'local storage': Database,
     'native bridges': Smartphone,
-    'ios swiftui': Smartphone,
-    'android kotlin': Smartphone,
-    'kotlin jetpack': Layers3,
+    'ios & android native': Smartphone,
     'testing & qa': Blocks,
     'git & github': Github,
     'performance optimization': Rocket,
@@ -80,7 +78,7 @@ const SkillCard = ({ name, summary, color, skillIcon, delay }: SkillCardProps) =
     return (
         <div
             ref={cardRef}
-            className="opacity-0 rounded-[28px] border border-[var(--navbar-border)] bg-[var(--card-bg)] p-5 sm:p-6 shadow-[0_12px_30px_rgba(0,0,0,0.06)] transition-all duration-300"
+            className="opacity-0 rounded-[18px] border border-[var(--navbar-border)] bg-[var(--card-bg)] p-3 shadow-[0_10px_24px_rgba(0,0,0,0.05)] transition-all duration-300 sm:rounded-[28px] sm:p-6 sm:shadow-[0_12px_30px_rgba(0,0,0,0.06)]"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{
@@ -90,9 +88,9 @@ const SkillCard = ({ name, summary, color, skillIcon, delay }: SkillCardProps) =
                     : '0 12px 30px rgba(0,0,0,0.06)'
             }}
         >
-            <div className="flex flex-col items-start gap-5">
+            <div className="flex flex-col items-start gap-3 sm:gap-5">
                 <div
-                    className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/5"
+                    className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 sm:h-16 sm:w-16 sm:rounded-2xl"
                     style={{
                         background: color ? `${color}18` : 'rgba(255,255,255,0.08)',
                         color: color || 'var(--accent)'
@@ -102,7 +100,7 @@ const SkillCard = ({ name, summary, color, skillIcon, delay }: SkillCardProps) =
                         <img
                             src={imageSrc}
                             alt={name}
-                            className="h-9 w-9 object-contain"
+                            className="h-7 w-7 object-contain sm:h-9 sm:w-9"
                             onError={() => setImgError(true)}
                         />
                     ) : (
@@ -110,10 +108,10 @@ const SkillCard = ({ name, summary, color, skillIcon, delay }: SkillCardProps) =
                     )}
                 </div>
 
-                <div className="space-y-2.5">
-                    <h3 className="text-xl font-black tracking-tight text-primary">{name}</h3>
+                <div className="space-y-1.5 sm:space-y-2.5">
+                    <h3 className="text-sm font-black leading-tight tracking-tight text-primary sm:text-xl">{name}</h3>
                     {summary && (
-                        <p className="text-sm leading-7 text-sec">
+                        <p className="line-clamp-3 text-xs leading-5 text-sec sm:text-sm sm:leading-7">
                             {summary}
                         </p>
                     )}
@@ -140,7 +138,7 @@ const Stack = () => {
     }, []);
 
     return (
-        <div className="min-h-screen w-full overflow-x-hidden bg-primary transition-slow pt-24 pb-28">
+        <div className="min-h-screen w-full overflow-x-hidden bg-primary transition-slow pt-24 pb-32 sm:pb-48">
             <div className="page-padding">
                 <div className="mx-auto max-w-7xl">
                     <div ref={handwritingRef} className="mb-[-10px] ml-1 text-4xl opacity-0 md:text-5xl" style={{ fontFamily: "'Caveat', cursive", color: 'var(--accent)' }}>
@@ -154,29 +152,29 @@ const Stack = () => {
                         Stack
                     </h1>
 
-                    <div className="mt-10 space-y-8">
+                    <div className="mt-8 space-y-6 sm:mt-10 sm:space-y-8">
                         <div
                             ref={introRef}
                             className="opacity-0"
                         >
-                            <section className="rounded-[34px] border border-[var(--navbar-border)] bg-[var(--card-bg)] p-7 shadow-[0_18px_40px_rgba(0,0,0,0.07)] sm:p-8">
+                            <section className="rounded-[24px] border border-[var(--navbar-border)] bg-[var(--card-bg)] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.07)] sm:rounded-[34px] sm:p-8">
                                 <div className="grid gap-6 lg:grid-cols-[0.9fr_1.4fr] lg:items-end">
                                     <div className="space-y-3">
                                         <p className="text-xs font-black uppercase tracking-[0.28em] text-blue-500/85">
                                             Mobile Engineering Stack
                                         </p>
-                                        <h2 className="text-3xl font-black leading-tight text-primary sm:text-4xl">
+                                        <h2 className="text-2xl font-black leading-tight text-primary sm:text-4xl">
                                             Flutter, architecture, integrations, releases, and production tooling.
                                         </h2>
                                     </div>
-                                    <p className="text-base leading-8 text-sec sm:text-lg">
+                                    <p className="text-sm leading-7 text-sec sm:text-lg sm:leading-8">
                                         A focused view of the skills Mahmoud uses to build maintainable mobile products across Android and iOS.
                                     </p>
                                 </div>
                             </section>
                         </div>
 
-                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(260px,1fr))] sm:gap-6 lg:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] lg:gap-8">
                             {techStack.map((item, index) => (
                                 <SkillCard
                                     key={item.name}
