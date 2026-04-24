@@ -8,13 +8,21 @@ interface AlgorithmProps {
     currentSection: string;
     isContactOpen: boolean;
     // parameter name intentionally unused in the type signature
-    onNavigate: (_section: 'home' | 'stack' | 'projects' | 'view_link') => void;
+    onNavigate: (_section: 'home' | 'stack' | 'experience' | 'projects' | 'view_link') => void;
 }
 
 interface ProjectStats {
     views: number;
     duration: number; // seconds
 }
+
+const isOfflineFirestoreError = (error: unknown) => {
+    const errorLike = typeof error === 'object' && error ? error as { code?: unknown; message?: unknown } : null;
+    const code = errorLike?.code ? String(errorLike.code).toLowerCase() : '';
+    const rawMessage = errorLike?.message ?? (error instanceof Error ? error.message : String(error));
+    const message = String(rawMessage).toLowerCase();
+    return code === 'unavailable' || message.includes('client is offline') || message.includes('offline');
+};
 
 export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: AlgorithmProps) => {
     const { alert, showAlert, hideAlert } = useSafeAlert(4000);
@@ -103,7 +111,9 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
             }, { merge: true });
 
         } catch (error) {
-            console.error(`Error incrementing daily ${field}:`, error);
+            if (!isOfflineFirestoreError(error)) {
+                console.error(`Error incrementing daily ${field}:`, error);
+            }
         }
     }, [firestore]);
 
@@ -212,7 +222,9 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
                     }
                 }, { merge: true });
             } catch (error) {
-                console.error("Global Analytics Error:", error);
+                if (!isOfflineFirestoreError(error)) {
+                    console.error("Global Analytics Error:", error);
+                }
             }
         };
 

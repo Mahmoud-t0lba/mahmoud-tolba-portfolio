@@ -520,10 +520,10 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
     // Balanced font sizes for a cleaner look
     const topSloganSize = isSmallMobile ? 30 : (isMobile ? 40 : 75);
     const bottomSloganSize = isSmallMobile ? 24 : (isMobile ? 34 : 65);
-    const firstNameFontSize = isSmallMobile ? '3.15rem' : (isMobile ? '4.35rem' : '7rem');
-    const lastNameFontSize = isSmallMobile ? '3.15rem' : (isMobile ? '4.35rem' : '7rem');
-    const nameTracking = isSmallMobile ? '-0.035em' : (isMobile ? '-0.05em' : '-0.065em');
-    const lastNameOffset = isSmallMobile ? '0.18rem' : (isMobile ? '0.05rem' : '-1.4rem');
+    const firstNameFontSize = isSmallMobile ? '3.05rem' : (isMobile ? '4.15rem' : '6.85rem');
+    const lastNameFontSize = isSmallMobile ? '3.05rem' : (isMobile ? '4.15rem' : '6.85rem');
+    const nameTracking = '0em';
+    const lastNameOffset = isSmallMobile ? '0.72rem' : (isMobile ? '0.62rem' : '0.2rem');
 
     useEffect(() => {
         if (!isReady) return;
@@ -600,10 +600,10 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
                         />
                     </div>
 
-                    <div ref={titleRef} className="z-10 transition-slow uppercase flex flex-col gap-0 w-full max-w-[540px]" style={{
+                    <div ref={titleRef} className="z-10 transition-slow uppercase flex flex-col w-full max-w-[580px]" style={{
                         fontWeight: 900,
                         fontFamily: "'Archivo Black', sans-serif",
-                        lineHeight: isMobile ? '1' : '0.9'
+                        lineHeight: isMobile ? '0.95' : '0.88'
                     }}>
                         <span
                             className="self-center md:self-start ml-0 md:ml-[-15px] flex justify-center md:justify-start"
@@ -623,7 +623,7 @@ const Hero = ({ onLoaded, onAnimationComplete, isReady = true }: { onLoaded?: ()
                         </span>
                     </div>
 
-                    <div className="mt-1 md:mt-[-50px] md:self-end md:mr-[-10px] lg:mr-[-20px] origin-center md:origin-right z-20">
+                    <div className="mt-6 md:mt-[-18px] md:self-end md:mr-[-10px] lg:mr-[-20px] origin-center md:origin-right z-20">
                         <HandwritingText
                             key={`slogan-2-${profileTitle}`}
                             text={profileTitle}

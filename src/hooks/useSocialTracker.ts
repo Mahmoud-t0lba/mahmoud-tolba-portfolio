@@ -18,6 +18,14 @@ const formatTimestamp = (ms: number) => {
     return `${day}/${month}/${year}-${hours}:${minutes}${period}`;
 };
 
+const isOfflineFirestoreError = (error: unknown) => {
+    const errorLike = typeof error === 'object' && error ? error as { code?: unknown; message?: unknown } : null;
+    const code = errorLike?.code ? String(errorLike.code).toLowerCase() : '';
+    const rawMessage = errorLike?.message ?? (error instanceof Error ? error.message : String(error));
+    const message = String(rawMessage).toLowerCase();
+    return code === 'unavailable' || message.includes('client is offline') || message.includes('offline');
+};
+
 export const useSocialTracker = () => {
     const [pendingVisit, setPendingVisit] = useState<{ linkName: string; clickId: string; clickTime: number } | null>(null);
     const firestore = db;
@@ -69,7 +77,9 @@ export const useSocialTracker = () => {
             }));
 
         } catch (error) {
-            console.error('Error tracking social click:', error);
+            if (!isOfflineFirestoreError(error)) {
+                console.error('Error tracking social click:', error);
+            }
         }
     }, [firestore]);
 
@@ -94,7 +104,9 @@ export const useSocialTracker = () => {
                     }));
 
                 } catch (error) {
-                    console.error('Error tracking social return:', error);
+                    if (!isOfflineFirestoreError(error)) {
+                        console.error('Error tracking social return:', error);
+                    }
                 } finally {
                     setPendingVisit(null);
                 }

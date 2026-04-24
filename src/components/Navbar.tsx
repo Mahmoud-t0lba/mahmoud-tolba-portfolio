@@ -1,8 +1,8 @@
-import { Home, Layers, FolderKanban, Mail, Moon, Sun, FileText } from 'lucide-react';
+import { BriefcaseBusiness, Home, Layers, FolderKanban, Mail, Moon, Sun, FileText } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-type NavigateSection = 'home' | 'stack' | 'projects' | 'view_link';
+type NavigateSection = 'home' | 'stack' | 'experience' | 'projects' | 'view_link';
 
 type NavigateFn = (section: NavigateSection) => void;
 
@@ -190,6 +190,18 @@ const Navbar = ({ onNavigate, currentSection = 'home', onOpenContact, isContactO
                             <Layers size={iconSize} strokeWidth={2} />
                         </button>
                         <Tooltip text="⚡ Stack" show={hoveredTab === 'stack'} isDark={isDark} />
+                    </div>
+
+                    <div className="relative">
+                        <button
+                            className={getButtonClass('experience')}
+                            onClick={() => onNavigate?.('experience')}
+                            onMouseEnter={() => setHoveredTab('experience')}
+                            onMouseLeave={() => setHoveredTab(null)}
+                        >
+                            <BriefcaseBusiness size={iconSize} strokeWidth={2} />
+                        </button>
+                        <Tooltip text="💼 Experience" show={hoveredTab === 'experience'} isDark={isDark} />
                     </div>
 
                     <div className="relative">

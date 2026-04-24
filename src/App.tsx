@@ -3,6 +3,7 @@ import { LayoutGroup, AnimatePresence, motion } from 'framer-motion';
 import Hero from './components/Hero';
 import Navbar from './components/Navbar';
 import Stack from './components/Stack';
+import Experience from './components/Experience';
 import PageTransition from './components/PageTransition';
 import Projects from './components/Projects';
 import MContact from './components/M-Contact';
@@ -15,7 +16,7 @@ import { ProjectData as Project, ContributorData as Contributor } from './types'
 import { firebaseEnabled } from './lib/firebase';
 import { siteBasePath } from './lib/site';
 
-type Section = 'home' | 'stack' | 'projects' | 'view_link';
+type Section = 'home' | 'stack' | 'experience' | 'projects' | 'view_link';
 
 function App() {
   const [currentSection, setCurrentSection] = useState<Section>(() => {
@@ -97,7 +98,7 @@ function App() {
 
   const navigateTo = useCallback((section: Section) => {
     if (section !== currentSection && !isTransitioning) {
-      const order: Section[] = ['home', 'stack', 'projects'];
+      const order: Section[] = ['home', 'stack', 'experience', 'projects'];
       const currIdx = order.indexOf(currentSection);
       const nextIdx = order.indexOf(section);
 
@@ -141,6 +142,8 @@ function App() {
         return <Hero onLoaded={() => setIsDataReady(true)} onAnimationComplete={handleHeroAnimationComplete} isReady={!appLoading} />;
       case 'stack':
         return <Stack />;
+      case 'experience':
+        return <Experience />;
       case 'projects':
         return <Projects />;
       case 'view_link':
@@ -196,10 +199,12 @@ function App() {
     if (Math.abs(deltaX) <= Math.abs(deltaY)) {
       if (deltaY > SWIPE_THRESHOLD && scrolledToBottom) {
         if (currentSection === 'home' || currentSection === 'view_link') navigateTo('stack');
-        else if (currentSection === 'stack') navigateTo('projects');
+        else if (currentSection === 'stack') navigateTo('experience');
+        else if (currentSection === 'experience') navigateTo('projects');
       }
       else if (deltaY < -SWIPE_THRESHOLD && scrolledToTop) {
-        if (currentSection === 'projects') navigateTo('stack');
+        if (currentSection === 'projects') navigateTo('experience');
+        else if (currentSection === 'experience') navigateTo('stack');
         else if (currentSection === 'stack') navigateTo('home');
       }
     }
@@ -249,7 +254,8 @@ function App() {
           navigationCooldownUntil.current = now + 1500; // Lock for 1.5s
 
           if (currentSection === 'home' || currentSection === 'view_link') navigateTo('stack');
-          else if (currentSection === 'stack') navigateTo('projects');
+          else if (currentSection === 'stack') navigateTo('experience');
+          else if (currentSection === 'experience') navigateTo('projects');
         }
       } else if (isScrollUp && scrolledToTop) {
         scrollAccumulator.current += e.deltaY;
@@ -258,7 +264,8 @@ function App() {
           scrollAccumulator.current = 0;
           navigationCooldownUntil.current = now + 1500; // Lock for 1.5s
 
-          if (currentSection === 'projects') navigateTo('stack');
+          if (currentSection === 'projects') navigateTo('experience');
+          else if (currentSection === 'experience') navigateTo('stack');
           else if (currentSection === 'stack') navigateTo('home');
         }
       } else {
