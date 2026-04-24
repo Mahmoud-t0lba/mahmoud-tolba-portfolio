@@ -217,7 +217,7 @@ const ProjectCard = ({ project, index, onClick }: { project: Project; index: num
             `}
             style={{ willChange: 'transform, opacity' }}
         >
-            <div className="relative h-[126px] overflow-hidden rounded-t-[18px] will-change-transform sm:h-[190px] sm:rounded-t-[20px] lg:h-[210px]">
+            <div className="relative h-[126px] overflow-hidden rounded-t-[18px] will-change-transform sm:h-[150px] sm:rounded-t-[20px] lg:h-[170px]">
                 {/* Slideshow Overlay */}
                 <div
                     className="absolute inset-0"
@@ -345,7 +345,7 @@ const ProjectCard = ({ project, index, onClick }: { project: Project; index: num
                 )}
             </div>
 
-            <div className="flex flex-col flex-1 p-3 sm:p-6">
+            <div className="flex flex-col flex-1 p-3 sm:p-4">
                 <div className="mb-1.5 flex items-center justify-between gap-2 sm:mb-2">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500">
                         {project.category || 'Mobile App'}
@@ -355,12 +355,12 @@ const ProjectCard = ({ project, index, onClick }: { project: Project; index: num
                     </span>
                 </div>
 
-                <h3 className="mb-2 line-clamp-2 text-sm font-black leading-tight tracking-tight text-primary transition-colors group-hover:text-blue-500 sm:mb-3 sm:text-2xl">
+                <h3 className="mb-2 line-clamp-2 text-sm font-black leading-tight tracking-tight text-primary transition-colors group-hover:text-blue-500 sm:mb-2 sm:text-xl">
                     {project.title || project.name}
                 </h3>
 
                 <p
-                    className="mb-3 line-clamp-2 flex-1 text-xs leading-5 text-sec sm:mb-6 sm:line-clamp-3 sm:text-sm sm:leading-relaxed"
+                    className="mb-3 line-clamp-2 flex-1 text-xs leading-5 text-sec sm:mb-4 sm:line-clamp-3 sm:text-[13px] sm:leading-relaxed"
                     style={{
                         display: '-webkit-box',
                         WebkitLineClamp: 3,
@@ -566,14 +566,14 @@ const Projects = () => {
 
                 {/* Projects Grid */}
                 {filteredProjects.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] sm:gap-6 lg:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] lg:gap-8 xl:gap-10">
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-6 xl:gap-8">
                         {filteredProjects.map((project, index) => (
                             <ProjectCard
                                 key={project.id}
                                 project={project}
                                 index={index}
                                 onClick={() => {
-                                    window.dispatchEvent(new CustomEvent('revil:project_open', { detail: { id: project.id } }));
+                                    window.dispatchEvent(new CustomEvent('tolba:project_open', { detail: { id: project.id } }));
                                     setSelectedProjectId(project.id ?? project.name);
                                 }}
                             />
@@ -594,7 +594,7 @@ const Projects = () => {
                         <MProjectView
                             project={selectedProject}
                             onClose={() => {
-                                window.dispatchEvent(new CustomEvent('revil:project_close'));
+                                window.dispatchEvent(new CustomEvent('tolba:project_close'));
                                 setSelectedProjectId(null);
                             }}
                             onContributorClick={(contributor: ContributorData) => {

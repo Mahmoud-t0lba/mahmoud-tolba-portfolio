@@ -154,16 +154,16 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
             metrics.current.socialStats[name].duration += durationSec;
         };
 
-        window.addEventListener('revil:project_open', handleProjectOpen as EventListener);
-        window.addEventListener('revil:project_close', handleProjectClose as EventListener);
-        window.addEventListener('revil:social_click', handleSocialClick as EventListener);
-        window.addEventListener('revil:social_return', handleSocialReturn as EventListener);
+        window.addEventListener('tolba:project_open', handleProjectOpen as EventListener);
+        window.addEventListener('tolba:project_close', handleProjectClose as EventListener);
+        window.addEventListener('tolba:social_click', handleSocialClick as EventListener);
+        window.addEventListener('tolba:social_return', handleSocialReturn as EventListener);
 
         return () => {
-            window.removeEventListener('revil:project_open', handleProjectOpen as EventListener);
-            window.removeEventListener('revil:project_close', handleProjectClose as EventListener);
-            window.removeEventListener('revil:social_click', handleSocialClick as EventListener);
-            window.removeEventListener('revil:social_return', handleSocialReturn as EventListener);
+            window.removeEventListener('tolba:project_open', handleProjectOpen as EventListener);
+            window.removeEventListener('tolba:project_close', handleProjectClose as EventListener);
+            window.removeEventListener('tolba:social_click', handleSocialClick as EventListener);
+            window.removeEventListener('tolba:social_return', handleSocialReturn as EventListener);
         };
     }, [incrementDailyStat]);
 
@@ -179,7 +179,7 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
                 const dailyRef = doc(firestore, 'Settings', 'Views', 'Analysis', 'Daily');
                 const today = new Date().toISOString().split('T')[0];
 
-                const hasVisitedToday = localStorage.getItem(`revil_visitor_today_${today}`);
+                const hasVisitedToday = localStorage.getItem(`tolba_visitor_today_${today}`);
 
                 // Get Main analytics
                 const mainSnap = await getDoc(mainRef);
@@ -199,7 +199,7 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
                 let newUniqueToday = todayData.unique || 0;
                 if (!hasVisitedToday) {
                     newUniqueToday += 1;
-                    localStorage.setItem(`revil_visitor_today_${today}`, 'true');
+                    localStorage.setItem(`tolba_visitor_today_${today}`, 'true');
                 }
 
                 // Update Main document
@@ -265,7 +265,7 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
                     return;
                 }
 
-                sessionStorage.setItem('revil_link_id', foundId);
+                sessionStorage.setItem('tolba_link_id', foundId);
                 metrics.current.baseMetrics = existingRec;
 
                 // Check for Interviewer Mode
@@ -274,9 +274,9 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
                     const linkData = linkDoc.data() as Record<string, unknown>;
                     const isInterviewer = !!linkData && (linkData['Interviewer'] === true);
                     if (isInterviewer) {
-                        sessionStorage.setItem('revil_interviewer_mode', 'true');
+                        sessionStorage.setItem('tolba_interviewer_mode', 'true');
                     } else {
-                        sessionStorage.removeItem('revil_interviewer_mode');
+                        sessionStorage.removeItem('tolba_interviewer_mode');
                     }
 
                     // Increment view count in Settings/Views/Links/{foundId}
@@ -304,7 +304,7 @@ export const Algorithm = ({ currentSection, isContactOpen, onNavigate }: Algorit
     // Only Sync at the very end — using keepalive fetch for reliability
     useEffect(() => {
         const handleFinalSync = () => {
-            const linkId = sessionStorage.getItem('revil_link_id');
+            const linkId = sessionStorage.getItem('tolba_link_id');
             if (!linkId || metrics.current.isSyncing) return;
 
             const totalSessionSeconds = Math.floor((Date.now() - sessionStart.current) / 1000);

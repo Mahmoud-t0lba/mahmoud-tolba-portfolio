@@ -692,7 +692,8 @@ const DProjects = () => {
             await setDoc(doc(db, 'Projects', projectName), projectDoc);
 
             setIsModalOpen(false);
-        } catch {
+        } catch (error) {
+            console.error("[Save Project Error]:", error);
             showAlert({ type: 'error', message: 'Failed to save project. Please check your data and try again.' });
         } finally {
             setIsLoading(false);

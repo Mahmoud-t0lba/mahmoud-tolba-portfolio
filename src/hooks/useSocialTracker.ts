@@ -72,7 +72,7 @@ export const useSocialTracker = () => {
                 }
 
             // Dispatch Global Event for Algorithm.tsx (Session Recording)
-            window.dispatchEvent(new CustomEvent('revil:social_click', {
+            window.dispatchEvent(new CustomEvent('tolba:social_click', {
                 detail: { name: linkName }
             }));
 
@@ -99,7 +99,7 @@ export const useSocialTracker = () => {
                     });
 
                     // Dispatch Global Event for Algorithm.tsx (Session Recording)
-                    window.dispatchEvent(new CustomEvent('revil:social_return', {
+                    window.dispatchEvent(new CustomEvent('tolba:social_return', {
                         detail: { name: pendingVisit.linkName, duration: durationMs }
                     }));
 
