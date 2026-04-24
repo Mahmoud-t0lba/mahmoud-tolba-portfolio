@@ -33,7 +33,7 @@ interface MCVProps {
     onProjectClick: (project: FullProject) => void;
 }
 
-const sectionTitleClass = 'text-sm md:text-base font-black uppercase tracking-[0.28em] text-blue-500';
+const sectionTitleClass = 'block pt-5 pb-1 md:pt-7 text-sm md:text-base font-black uppercase tracking-[0.28em] text-blue-500';
 const cvCardClass = 'rounded-[24px] border border-black/5 bg-white/45 p-6 shadow-[0_14px_34px_rgba(0,0,0,0.06)] dark:border-white/8 dark:bg-white/5 md:rounded-[30px] md:p-9';
 
 const MCV = ({ onClose, onProjectClick }: Omit<MCVProps, 'isOpen'>) => {
@@ -239,7 +239,7 @@ const MCV = ({ onClose, onProjectClick }: Omit<MCVProps, 'isOpen'>) => {
                                         <h3 className={sectionTitleClass}>Experience</h3>
                                         <div className="space-y-9 md:space-y-14">
                                             {experiences.map((experience) => (
-                                                <div key={`${experience.company}-${experience.period}`} className={cvCardClass}>
+                                                <div key={`${experience.company}-${experience.period}`} className={`${cvCardClass} mb-1`}>
                                                     <div className="space-y-5 md:space-y-8">
                                                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                                                             <div className="space-y-3">
