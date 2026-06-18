@@ -118,6 +118,11 @@ export const techStack: TagData[] = [
         summary: 'Low-coupled, testable codebases using dependency injection and reusable abstractions.'
     },
     {
+        name: 'TDD',
+        color: '#059669',
+        summary: 'Test-driven development using unit, widget, and integration tests to design cleaner code and prevent regressions.'
+    },
+    {
         name: 'Firebase',
         color: '#FFCA28',
         skillIcon: 'firebase',

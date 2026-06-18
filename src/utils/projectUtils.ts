@@ -19,6 +19,7 @@ export const getTechColor = (name: string) => {
     if (lower.includes('provider') || lower.includes('riverpod')) return '#0ea5e9';
     if (lower.includes('clean architecture')) return '#16a34a';
     if (lower.includes('solid')) return '#14b8a6';
+    if (lower.includes('tdd')) return '#059669';
     if (lower.includes('html')) return '#e34f26';
     if (lower.includes('css')) return '#1572b6';
     if (lower.includes('js') || lower.includes('javascript')) return '#f7df1e';
