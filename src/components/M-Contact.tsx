@@ -184,8 +184,9 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
         }, { merge: true });
       });
 
-      showAlert({ type: 'success', message: 'Meeting request saved.' });
-      setTimeout(onClose, 1200);
+      showAlert({ type: 'success', message: 'Meeting saved. Opening your email app to send...' });
+      openMailDraft(subject, body);
+      setTimeout(onClose, 2000);
     } catch {
       showAlert({ type: 'error', message: 'Could not save the meeting request.' });
     } finally {
@@ -238,8 +239,9 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
         }, { merge: true });
       });
 
-      showAlert({ type: 'success', message: 'Message sent successfully.' });
-      setTimeout(onClose, 1200);
+      showAlert({ type: 'success', message: 'Message saved. Opening your email app to send...' });
+      openMailDraft(subject, body);
+      setTimeout(onClose, 2000);
     } catch {
       showAlert({ type: 'error', message: 'Failed to send the message.' });
     } finally {
@@ -400,8 +402,8 @@ const MContact = ({ onClose, initialTab = 'meeting', hideTabs = false }: { onClo
             {isSubmitting
               ? 'Sending...'
               : activeTab === 'meeting'
-                ? firebaseEnabled ? 'Request Meeting' : 'Open Meeting Email'
-                : firebaseEnabled ? 'Send Message' : 'Open Email Draft'}
+                ? 'Send Meeting Request'
+                : 'Send Message'}
             <Send size={18} />
           </button>
         </form>

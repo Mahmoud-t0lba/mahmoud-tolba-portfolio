@@ -65,7 +65,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         {/* Content Security Policy — defense-in-depth against XSS */}
         <meta
@@ -77,7 +77,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&family=Permanent+Marker&family=Caveat:wght@400;500;600;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <ClientProtection />
         <div id="root">{children}</div>
       </body>

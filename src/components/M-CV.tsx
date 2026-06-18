@@ -159,14 +159,14 @@ const MCV = ({ onClose, onProjectClick }: Omit<MCVProps, 'isOpen'>) => {
                                         </div>
                                         <div className="mt-4 break-all text-xs font-semibold leading-relaxed text-primary transition-colors group-hover:text-blue-500 md:mt-5 md:text-sm">{personalInfo.email}</div>
                                     </a>
-                                    <a href={`tel:${personalInfo.phone.replace(/\s+/g, '')}`} className="rounded-[22px] border border-black/5 bg-white/45 p-5 shadow-[0_10px_26px_rgba(0,0,0,0.05)] transition-colors hover:text-blue-500 dark:border-white/8 dark:bg-white/4 md:rounded-[26px] md:p-7">
+                                    <a href={`tel:${personalInfo.phone.replace(/\s+/g, '')}`} className="group flex min-h-[126px] flex-col justify-between rounded-[22px] border border-black/5 bg-white/45 p-5 shadow-[0_10px_26px_rgba(0,0,0,0.05)] transition-all hover:border-blue-500/20 hover:bg-blue-500/[0.02] dark:border-white/8 dark:bg-white/4 md:min-h-[160px] md:rounded-[26px] md:p-7">
                                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.24em] text-blue-500">
                                             <Phone size={14} />
                                             Call
                                         </div>
-                                        <div className="mt-4 text-xs font-semibold leading-6 text-primary md:mt-5 md:text-sm md:leading-7">{personalInfo.phone}</div>
+                                        <div className="mt-4 text-xs font-semibold leading-6 text-primary transition-colors group-hover:text-blue-500 md:mt-5 md:text-sm md:leading-7">{personalInfo.phone}</div>
                                     </a>
-                                    <div className="rounded-[22px] border border-black/5 bg-white/45 p-5 shadow-[0_10px_26px_rgba(0,0,0,0.05)] dark:border-white/8 dark:bg-white/4 md:rounded-[26px] md:p-7">
+                                    <div className="flex min-h-[126px] flex-col justify-between rounded-[22px] border border-black/5 bg-white/45 p-5 shadow-[0_10px_26px_rgba(0,0,0,0.05)] dark:border-white/8 dark:bg-white/4 md:min-h-[160px] md:rounded-[26px] md:p-7">
                                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.24em] text-blue-500">
                                             <MapPin size={14} />
                                             Location
@@ -177,13 +177,13 @@ const MCV = ({ onClose, onProjectClick }: Omit<MCVProps, 'isOpen'>) => {
                                         href={personalInfo.resumeUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="rounded-[22px] border border-black/5 bg-white/45 p-5 shadow-[0_10px_26px_rgba(0,0,0,0.05)] transition-colors hover:text-blue-500 dark:border-white/8 dark:bg-white/4 md:rounded-[26px] md:p-7"
+                                        className="group flex min-h-[126px] flex-col justify-between rounded-[22px] border border-black/5 bg-white/45 p-5 shadow-[0_10px_26px_rgba(0,0,0,0.05)] transition-all hover:border-blue-500/20 hover:bg-blue-500/[0.02] dark:border-white/8 dark:bg-white/4 md:min-h-[160px] md:rounded-[26px] md:p-7"
                                     >
                                         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.24em] text-blue-500">
                                             <Download size={14} />
                                             Resume
                                         </div>
-                                        <div className="mt-4 text-xs font-semibold leading-6 text-primary md:mt-5 md:text-sm md:leading-7">Open PDF version</div>
+                                        <div className="mt-4 text-xs font-semibold leading-6 text-primary transition-colors group-hover:text-blue-500 md:mt-5 md:text-sm md:leading-7">Open PDF version</div>
                                     </a>
                                 </div>
 

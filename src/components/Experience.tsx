@@ -66,30 +66,30 @@ const Experience = () => {
                                     </div>
 
                                     <div className="grid gap-4 sm:grid-cols-2">
-                                        <a href={`mailto:${personalInfo.email}`} className="group flex min-h-[160px] flex-col justify-between rounded-[24px] border border-black/5 bg-black/[0.03] p-6 transition-all hover:border-blue-500/20 hover:bg-blue-500/[0.02] dark:border-white/8 dark:bg-white/[0.03]">
+                                        <a href={`mailto:${personalInfo.email}`} className="group flex min-h-[130px] flex-col justify-between rounded-[24px] border border-black/5 bg-black/[0.03] p-5 sm:p-6 transition-all hover:border-blue-500/20 hover:bg-blue-500/[0.02] dark:border-white/8 dark:bg-white/[0.03]">
                                             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-blue-500">
                                                 <Mail size={15} />
                                                 Email
                                             </div>
-                                            <p className="mt-4 text-sm font-bold leading-relaxed text-primary transition-colors group-hover:text-blue-500">{personalInfo.email}</p>
+                                            <p className="mt-4 break-all text-xs font-bold leading-relaxed text-primary transition-colors group-hover:text-blue-500 sm:text-sm">{personalInfo.email}</p>
                                         </a>
                                         <a
                                             href={personalInfo.socialLinks.call}
                                             onClick={() => trackClick('Call')}
-                                            className="rounded-[24px] border border-black/5 bg-black/[0.03] p-5 transition-colors hover:text-blue-500 dark:border-white/8 dark:bg-white/[0.03]"
+                                            className="group flex min-h-[130px] flex-col justify-between rounded-[24px] border border-black/5 bg-black/[0.03] p-5 sm:p-6 transition-all hover:border-blue-500/20 hover:bg-blue-500/[0.02] dark:border-white/8 dark:bg-white/[0.03]"
                                         >
                                             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-blue-500">
                                                 <PhoneCall size={15} />
                                                 Call
                                             </div>
-                                            <p className="mt-4 text-sm font-bold leading-7 text-primary">{personalInfo.phone}</p>
+                                            <p className="mt-4 text-xs font-bold leading-7 text-primary transition-colors group-hover:text-blue-500 sm:text-sm">{personalInfo.phone}</p>
                                         </a>
-                                        <div className="rounded-[24px] border border-black/5 bg-black/[0.03] p-5 dark:border-white/8 dark:bg-white/[0.03] sm:col-span-2">
+                                        <div className="flex flex-col justify-between rounded-[24px] border border-black/5 bg-black/[0.03] p-5 sm:p-6 dark:border-white/8 dark:bg-white/[0.03] sm:col-span-2">
                                             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-blue-500">
                                                 <MapPin size={15} />
                                                 Location
                                             </div>
-                                            <p className="mt-4 text-sm font-bold leading-7 text-primary">{personalInfo.location}</p>
+                                            <p className="mt-4 text-xs font-bold leading-7 text-primary sm:text-sm">{personalInfo.location}</p>
                                         </div>
                                     </div>
                                 </div>
